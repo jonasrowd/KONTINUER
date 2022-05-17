@@ -1,4 +1,4 @@
-#Include "Totvs.ch"
+#Include "TOTVS.ch"
 
 /*/{Protheus.doc} MT103PN
 	Ponto de entrada antes da classificação para exibir mensagem informando como foi verificada a pré-nota
@@ -51,7 +51,7 @@ User Function MT103PN()
 
 	If !Eof()
 
-		// Testa os cados dos status da legenda para exibir ao usuário a informação.
+		// Testa os casos dos status da legenda para exibir ao usuário a informação.
 		Do Case
 
 		Case (TMPCLA->ZBY_STATUS=='I' .AND. TMPCLA->ZBY_SITUAC == 'A')

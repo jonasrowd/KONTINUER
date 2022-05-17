@@ -13,12 +13,12 @@ User Function KCOMF035()
 	Local cVldAlt := ".T." // Validacao para permitir a alteracao. Pode-se utilizar ExecBlock.
 	Local cVldExc := ".T." // Validacao para permitir a exclusao. Pode-se utilizar ExecBlock.
 
-	Private cString := "ZBZ"	// Alias da Tabela a ser aberta/criada
+	Private cString := "ZBY"	// Alias da Tabela a ser aberta/criada
 
-	dbSelectArea("ZBZ")
+	dbSelectArea("ZBY")
 	dbSetOrder(1)
 
 	// Função para montagem de tela básica
-	AxCadastro(cString,"Itens Confirmação Pré-nota",cVldExc,cVldAlt)
+	AxCadastro(cString,"Cabeçalho Confirmação Pré-nota",cVldExc,cVldAlt)
 
 Return (Nil)

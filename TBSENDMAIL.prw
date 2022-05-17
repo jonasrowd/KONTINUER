@@ -43,15 +43,10 @@ User Function TBSENDMAIL(c_Emp, c_Filial, c_To, c_Body, c_Subj, l_ExibeTela, a_A
 		Return(.F.)
 	ENDIF
 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³Conecta ao servidor de SMTP |
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	// Conecta ao servidor SMTP
 	CONNECT SMTP SERVER c_Server ACCOUNT c_Account PASSWORD c_Password RESULT lConectou
 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³Caso o servidor SMTP do cliente necessite de autenticacao |
-	//|sera necessario habilitar o parametro MV_RELAUTH.         |
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	// Caso o servidor SMTP do cliente necessite de autenticacao, será necessario habilitar o parametro MV_RELAUTH
 	IF l_Autentic
 		If !MailAuth( c_Account, c_Autentic )
 			IF l_ExibeTela
@@ -63,9 +58,7 @@ User Function TBSENDMAIL(c_Emp, c_Filial, c_To, c_Body, c_Subj, l_ExibeTela, a_A
 		Endif
 	ENDIF
 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³Verifica se houve conexao com o servidor SMTP |
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	// Verifica se houve conexao com o servidor SMTP
 	If !lConectou
 		IF l_ExibeTela
 			Aviso(SM0->M0_NOMECOM,"Erro ao conectar servidor de E-Mail (SMTP) - " + c_Server+CHR(10)+CHR(13)+;
@@ -75,18 +68,15 @@ User Function TBSENDMAIL(c_Emp, c_Filial, c_To, c_Body, c_Subj, l_ExibeTela, a_A
 		Return(.F.)
 	Endif
 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³Envia o e-mail |
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	// Envia o e-mail
 	IF LEN(a_Anexo) >= 1
 		SEND MAIL FROM c_Envia TO Alltrim(c_To) SUBJECT c_Subj BODY c_Body ATTACHMENT a_Anexo[1] RESULT lEnviado
 	ELSE
 		SEND MAIL FROM c_Envia TO Alltrim(c_To) SUBJECT c_Subj BODY c_Body RESULT lEnviado
 	ENDIF
 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³Verifica possiveis erros durante o envio do e-mail |
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	
+	// Verifica possíveis erros durante o envio do e-mail
 	If lEnviado
 		IF l_ExibeTela
 			Aviso(SM0->M0_NOMECOM,"Foi enviado e-mail para "+c_To+" com sucesso!",{"Ok"},3,"Informação!")
