@@ -52,7 +52,7 @@ User Function KCOMF034()
     // Dados a serem carregados no cabeçalho da interface gráfica TODO: Alterar a consulta padrão de acordo com a necessidade da empresa
     // Número da Pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[01][03] + "'}"), 012, 007, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
-    @ 020, 007 MsGet aGets[01][01] Var aGets[01][02] Picture "@!" Size 050, 010 Of oT01 F3 "SF1TMP" Pixel When .T.
+    @ 020, 007 MsGet aGets[01][01] Var aGets[01][02] Picture "@!" Size 050, 010 Of oT01 F3 "SF102" Pixel When .T.
     // Série da Pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[02][03] + "'}"), 012, 70, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
     @ 020, 70 MsGet aGets[02][01] Var aGets[02][02] Picture "@!" Size 030, 010 Of oT01 Pixel When .T.
@@ -234,7 +234,7 @@ Static Function KCOMF034A(lRefresh)
                             Nil                       ,; //10 - Indica o início do intervalo para o filtro.
                             Nil                       ,; //11 - Indica o fim do intervalo para o filtro.
                             Nil                       ,; //12 - Indica o bloco de código que será executado ao mudar de linha.
-                            {|| }            ,; //13 - Indica o bloco de código que será executado quando clicar duas vezes, com o botão esquerdo do mouse, sobre o objeto.
+                            {|| }                     ,; //13 - Indica o bloco de código que será executado quando clicar duas vezes, com o botão esquerdo do mouse, sobre o objeto.
                             Nil                       ,; //14 - Indica o bloco de código que será executado quando clicar, com o botão direito do mouse, sobre o objeto.
                             oFon2                     ,; //15 - Indica o objeto do tipo TFont utilizado para definir as características da fonte aplicada na exibição do conteúdo do controle visual.
                             Nil                       ,; //16 - Indica o tipo de ponteiro do mouse.
@@ -259,7 +259,7 @@ Static Function KCOMF034A(lRefresh)
         // Visualiza 
         oL1:bLine := {||{If((aL1[oL1:nAt][07] == 0 .AND. aL1[oL1:nAt][10] == 0), oOn,;
                         If((aL1[oL1:nAt][07] == 0 .AND. aL1[oL1:nAt][10] != 0), oSd2,;
-                        If((aL1[oL1:nAt][07] != 0 .AND. aL1[oL1:nAt][10] == 0),oSd1,oSd2)))           ,;
+                        If((aL1[oL1:nAt][07] != 0 .AND. aL1[oL1:nAt][10] == 0),oSd1,oSd3)))           ,;
                         aL1[oL1:nAt][01]	                             ,; 
                         aL1[oL1:nAt][02]	                             ,; 
                         aL1[oL1:nAt][03]	                             ,;
@@ -369,9 +369,9 @@ Static Function KCOMF034B(lRefresh)
     oL2:SetArray(aL2)
 
         //Visualiza
-        oL2:bLine := {||{If((aL1[oL1:nAt][07] == 0 .AND. aL1[oL1:nAt][10] == 0), oOn,;
-                        If((aL1[oL1:nAt][10] != 0 .AND. aL1[oL1:nAt][07] == 0), oSd2,;
-                        If((aL1[oL1:nAt][07] != 0 .AND. aL1[oL1:nAt][10] == 0),oSd1,oSd3)))    ,;	  
+        oL2:bLine := {||{If((aL1[oL2:nAt][07] == 0 .AND. aL1[oL2:nAt][10] == 0), oOn,;
+                        If((aL1[oL2:nAt][07] == 0 .AND. aL1[oL2:nAt][10] != 0), oSd2,;
+                        If((aL1[oL2:nAt][07] != 0 .AND. aL1[oL2:nAt][10] == 0),oSd1,oSd3)))    ,;	  
                         aL2[oL2:nAt][01]	                      ,; 
                         aL2[oL2:nAt][03]	                      ,;
                         aL2[oL2:nAt][04]	                      ,;
@@ -408,6 +408,7 @@ Static Function KCOMF034Z()
     Local aArea      // Área anteriormente posicionada
     Local aLine      // Auxiliar de montagem das linhas do grid
     Local cAlias     // Alias do arquivo temporário
+    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
     
     // Inicialização de variáveis
     aL2    := {}
@@ -480,7 +481,7 @@ Static Function KCOMF034Z()
             WHERE
                 SD1.D1_FILIAL = %XFILIAL:SD1%
                 AND SD1.D1_DOC = %EXP:aGets[1][2]%
-                AND SD1.D1_SERIE = %EXP:aGets[2][2]%
+                AND SD1.D1_SERIE = %EXP:cSerie%
                 AND SD1.D1_FORNECE = %EXP:aGets[3][2]%
                 AND SD1.D1_LOJA = %EXP:aGets[4][2]%
                 AND SD1.%NOTDEL%
@@ -595,6 +596,7 @@ Static Function KCOMF034W()
     
     Local l_Ret  := .T.              // Variável de controle
     Local aArea  := FwGetArea()      // Salva a área posicionada
+    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
     // Local cUser := __cUserId
     
     // If !(cUser $ SuperGetMV("MV_VALIDPN", .F., ""))
@@ -604,21 +606,57 @@ Static Function KCOMF034W()
     //     Return
     // EndIf
 
-    If (Empty(aGets[1][2]) .Or. Empty(aGets[2][2]) .Or. Empty(aGets[3][2]) .Or. Empty(aGets[4][2]))
+    If (Empty(aGets[1][2]) /*.Or. Empty(aGets[2][2]) */ .Or. Empty(aGets[3][2]) .Or. Empty(aGets[4][2]))
         Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Faltam parâmetros para continuar o processo.",;
         1, 0, NIL, NIL, NIL, NIL, NIL, {"Gentileza preencher todos os campos para prosseguir."})
         l_Ret := .F.
     Else
-        DbSelectArea("SF1")
-        DbSetOrder(1)
-        If DbSeek(FwXFilial("SF1") + aGets[1][2] + aGets[2][2] + aGets[3][2] + aGets[4][2])
-            If !Empty(SF1->F1_STATUS)
-                Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento não é uma Pré-Nota.",;
-                1, 0, NIL, NIL, NIL, NIL, NIL, {"Gentileza preencher os dados de uma Pré-Nota para prosseguir."})
-                l_Ret := .F.
-                Return (l_Ret)
-            EndIf
+        // Verifica se o alias já estava aberto, se estiver, fecha
+        If Select("TMPDF1") > 0
+            TMPDF1->(DbSelectArea("TMPDF1"))
+            TMPDF1->(DbCloseArea())
         EndIf
+
+        BEGINSQL ALIAS "TMPDF1"
+            SELECT
+                DISTINCT
+                    F1_STATUS,
+                    D1_PEDIDO,
+                    F1_DOC,
+                    F1_SERIE,
+                    F1_FORNECE,
+                    F1_LOJA
+            FROM 
+                %TABLE:SD1% SD1
+            INNER JOIN 
+                %TABLE:SF1% SF1
+            ON
+                SF1.F1_FILIAL = SD1.D1_FILIAL
+                AND SF1.F1_DOC = SD1.D1_DOC
+                AND SF1.F1_SERIE = SD1.D1_SERIE
+                AND SF1.F1_FORNECE = SD1.D1_FORNECE
+                AND SF1.F1_LOJA = SD1.D1_LOJA
+                AND SF1.%NOTDEL%
+            WHERE
+                SD1.D1_FILIAL      = %XFILIAL:SD1%
+                AND SD1.D1_DOC     = %EXP:aGets[1][2]%
+                AND SD1.D1_SERIE   = %EXP:cSerie%
+                AND SD1.D1_FORNECE = %EXP:aGets[3][2]%
+                AND SD1.D1_LOJA    = %EXP:aGets[4][2]%
+                AND SD1.%NOTDEL%
+        ENDSQL
+
+        If !Empty(TMPDF1->F1_STATUS)
+            Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento não é uma Pré-Nota.",;
+            1, 0, NIL, NIL, NIL, NIL, NIL, {"Gentileza preencher os dados de uma Pré-Nota para prosseguir."})
+            l_Ret := .F.
+        ElseIf Empty(TMPDF1->D1_PEDIDO)
+            Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Pré-nota sem pedido amarado.",;
+            1, 0, NIL, NIL, NIL, NIL, NIL, {"Gentileza selecionar um pedido para prosseguir."})
+            l_Ret := .F.
+        EndIf
+
+        TMPDF1->(DbCloseArea())
 
         // Verifica se o alias já estava aberto, se estiver, fecha
         If Select("TMPZBY") > 0
@@ -636,7 +674,7 @@ Static Function KCOMF034W()
             WHERE
                 ZBY_FILIAL     = %XFILIAL:ZBY%
                 AND ZBY_DOC    = %EXP:aGets[1][2]%
-                AND ZBY_SERIE  = %EXP:aGets[2][2]%
+                AND ZBY_SERIE  = %EXP:cSerie%
                 AND ZBY_FORNEC = %EXP:aGets[3][2]%
                 AND ZBY_LOJA   = %EXP:aGets[4][2]%
                 AND %NOTDEL%
@@ -650,8 +688,6 @@ Static Function KCOMF034W()
                 "Situação: Rejeitado" + ENTER +;
                 "Selecione outro documento para prosseguir."})
                 l_Ret := .F.
-                FwRestArea(aArea)
-                Return (l_Ret)
             ElseIf TMPZBY->ZBY_STATUS == 'A'
                 Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento já foi analisado neste processo.",;
                 1, 0, NIL, NIL, NIL, NIL, NIL, {"Analisado por: " + TMPZBY->ZBY_USUA + ENTER +;
@@ -659,13 +695,11 @@ Static Function KCOMF034W()
                 "Situação: Aprovado " + ENTER +;
                 "Selecione outro documento para prosseguir."})
                 l_Ret := .F.
-                FwRestArea(aArea)
-                Return (l_Ret)
             EndIf
             TMPZBY->(DbSkip())
         End
         // Fecha a área atual
-        DBCloseArea()
+        TMPZBY->(DBCloseArea())
     EndIf
 
     FwRestArea(aArea)
@@ -684,6 +718,7 @@ Static Function KCOMF034Y(cMotivo)
     Local aArea     := FwGetArea()    // Salva área anteriormente posicionada
     Local nx        := 0              // Variável contador
     Local cStatus   := ""
+    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
     Default cMotivo := "Aprovado" // Só muda no caso de rejeitar a pré-nota
     
     // Verifica se não há nenhuma inconsistência antes de persistir os dados no banco
@@ -700,9 +735,9 @@ Static Function KCOMF034Y(cMotivo)
 
             // Persiste os dados na tabela de cabeçalho das pré-notas avaliadas
             RecLock("ZBY",.T.)
-                ZBY->ZBY_FILIAL  := FwXFilial()
+                ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
                 ZBY->ZBY_DOC     := aGets[1][2]
-                ZBY->ZBY_SERIE   := aGets[2][2]
+                ZBY->ZBY_SERIE   := cSerie
                 ZBY->ZBY_FORNEC  := aGets[3][2]
                 ZBY->ZBY_LOJA    := aGets[4][2]
                 ZBY->ZBY_EMISSA  := cToD(aDados[2]:cTitle)
@@ -722,9 +757,9 @@ Static Function KCOMF034Y(cMotivo)
                 For nX := 1 To Len(aL1)
                     // Grava os itens da pré-nota
                     RecLock("ZBZ",.T.)
-                        ZBZ->ZBZ_FILIAL := FwXFilial()
+                        ZBZ->ZBZ_FILIAL := FWXFILIAL("ZBZ")
                         ZBZ->ZBZ_DOC    := aGets[1][2]
-                        ZBZ->ZBZ_SERIE  := aGets[2][2]
+                        ZBZ->ZBZ_SERIE  := cSerie
                         ZBZ->ZBZ_FORNEC := aGets[3][2]
                         ZBZ->ZBZ_LOJA   := aGets[4][2]
                         ZBZ->ZBZ_NOME   := aDados[3]:cTitle
@@ -805,10 +840,11 @@ Static Function KCOMF034V()
 
 	Local c_Cabec   := ""
 	Local c_MailFin	:= SuperGetMv("KR_MAILPRE",, "jonas.machado@samcorp.com.br")
+    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
 
     c_Cabec := ;
             '  <b>Pré-Nota:</b>&nbsp;' + aGets[1][2] + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Série:</b>&nbsp;' + aGets[2][2] + ENTER +;
+            '  &nbsp;&nbsp;&nbsp;<b>Série:</b>&nbsp;' + cSerie + ENTER +;
             '  &nbsp;&nbsp;&nbsp;<b>Emissão:</b>&nbsp;' + aDados[2]:cTitle + ENTER +;
             '  &nbsp;&nbsp;&nbsp;<b>Fornecedor:</b>&nbsp;' + aGets[3][2] + ENTER +;
             '  &nbsp;&nbsp;&nbsp;<b>Loja:</b>&nbsp;' + aGets[4][2] + ENTER +;
@@ -837,14 +873,15 @@ Return (Nil)
 Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo)
 
 	Local _cCorpo := "" // Corpo do e-mail
+    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
 
     _cCorpo := ;
                 '<p>Prezado(a),</p>' +;
                 '<p>Pré-nota: ' + aGets[1][2] + ENTER + ;
-                ' Série: '+ aGets[2][2] + ENTER +;
+                ' Série: '+ cSerie + ENTER +;
                 ' Fornecedor: ' + aGets[3][2] + ENTER +;
                 ' Loja: ' + aGets[4][2] + ENTER +;
-                ', foi ' + IIf(cFlag == "A","Aprovada", "Rejeitada" ) + ENTER +;
+                ' Foi ' + IIf(cFlag == "A","Aprovada", "Rejeitada" ) + ENTER +;
                 ' em ' + DToC(Date()) + " " + Time()  + '.</p>' + ENTER +;
                 '<table>' +;
                 '<tr>' +; 

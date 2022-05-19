@@ -1,6 +1,7 @@
 // Bibliotecas necessárias
 #Include "TOTVS.ch"
 #Include "FWMVCDEF.ch"
+#INCLUDE "FWMBROWSE.CH"
 
 /*/{Protheus.doc} KCOMF037
 	Rotina customizada para visualizar as pré-notas que vão sendo avaliadas antes de serem classificadas, 
@@ -55,9 +56,10 @@ Static Function MenuDef()
 	    // ADD OPTION aRotina TITLE 'Incluir'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_INSERT ACCESS 0 //OPERATION 3
 	    // ADD OPTION aRotina TITLE 'Alterar'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_UPDATE ACCESS 0 //OPERATION 4
 	    // ADD OPTION aRotina TITLE 'Excluir'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_DELETE ACCESS 0 //OPERATION 5
-		ADD OPTION aRotina TITLE 'Classificar'     		ACTION 'CustomClas' OPERATION 7 ACCESS 0
-		ADD OPTION aRotina TITLE 'Documento de Entrada' ACTION 'U_ExecPadrao("MATA103")' OPERATION 8 ACCESS 0
-		ADD OPTION aRotina TITLE 'Legenda'     			ACTION 'U_fLegZBY' OPERATION 11 ACCESS 0
+		ADD OPTION aRotina TITLE 'Classificar'     		ACTION 'U_KCLASSPR' OPERATION 6 ACCESS 0
+		ADD OPTION aRotina TITLE 'Documento de Entrada' ACTION 'U_ExecPadrao("MATA103")' OPERATION 7 ACCESS 0
+		ADD OPTION aRotina TITLE 'Devolução'     		ACTION 'U_KDEVOLPR' OPERATION 8 ACCESS 0 //aAdd(aRotina,{OemToAnsi(STR0005), "A103Devol"  , 0 , 3, 0, .F.})
+		ADD OPTION aRotina TITLE 'Legenda'     			ACTION 'U_fLegZBY' OPERATION 9 ACCESS 0
 	EndIf
 
 Return (aRotina)
@@ -155,7 +157,7 @@ Return (oView)
 	@param c_Acao, character, Ação realizada
 	@param c_Campo, character, Nome do campo acionado
 	@param c_Valor, character, Valor alterado
-	@return Logica, lRet, Retorna verdadeiro para permitir
+	@returnLogical, lRet, Retorna verdadeiro para permitir
 /*/
 Static Function fVldZBZ(o_GridZBZ, n_Linha, c_Acao, c_Campo, c_Valor)
 
@@ -181,7 +183,7 @@ Return (l_Ret)
 	@param c_Acao, character, Ação realizada
 	@param c_Campo, character, Campo acionado
 	@param c_Valor, character, Valor alterado
-	@return Logica, lRet, Retorna verdadeiro para permitir
+	@return Logical, lRet, Retorna verdadeiro para permitir
 /*/
 Static Function fVldZBY(o_FieldZBY, c_Acao, c_Campo, c_Valor)
     // Local o_Model    := FWModelActive()
@@ -209,7 +211,7 @@ Return (l_Ret)
 	@author Jonas Machado
 	@since 16/05/2022
 	@param o_Model, object, Objeto contendo o modelo de dados
-	@return lRet, Logical, Se verdadeiro, permite a gravação do TudoOk
+	@return Logical, lRet, Se verdadeiro, permite a gravação do TudoOk
 /*/
 Static Function ZBYTUDOOK(o_Model)
 
@@ -238,7 +240,7 @@ Return (l_Ret)
 	@since 16/05/2022
 	@param o_GridZBZ, object, Objeto com a grid da rotina
 	@param n_Linha, numeric, Linha posicionada
-	@return lRet, Logical, REtonar verdadeiro para permitir prosseguir
+	@return Logical, lRet, REtonar verdadeiro para permitir prosseguir
 /*/
 Static Function ZBZLOK(o_GridZBZ, n_Linha)
 
@@ -253,16 +255,16 @@ Static Function ZBZLOK(o_GridZBZ, n_Linha)
 
 Return (l_Ret)
 
-/*/{Protheus.doc} CustomClas
+/*/{Protheus.doc} KCLASSPR
 	Abre a função para classificar a pré-nota
 	@type function
 	@version 12.1.33
 	@author Jonas Machado
 	@since 16/05/2022
 /*/
-Static Function CustomClas()
+User Function KCLASSPR()
 
-	Local aArea := GetArea()
+	Local aArea := FWGetArea()
 
 	// Verifica se o alias já estava aberto, se estiver, fecha
 	If Select("TmpRec") > 0
@@ -305,7 +307,7 @@ Static Function CustomClas()
 
 	EndIf
 
-	RetArea(aArea)
+	FWRestArea(aArea)
 
 Return (Nil)
 
@@ -389,5 +391,62 @@ User Function fLegZBY
 	aAdd(aLegenda,{"BR_PRETO" 	 , "Rejei. Prc/Qtde Divergentes" })
 
 	BrwLegenda("Pré-Notas a Classificar", "", aLegenda )
+
+Return (Nil)
+
+
+/*/{Protheus.doc} KDEVOLPR
+	Abre a função para classificar a pré-nota
+	@type function
+	@version 12.1.33
+	@author Jonas Machado
+	@since 16/05/2022
+/*/
+User Function KDEVOLPR()
+
+	Local aArea := FWGetArea()
+
+	// Verifica se o alias já estava aberto, se estiver, fecha
+	If Select("TmpRec") > 0
+		TmpRec->(DbSelectArea("TmpRec"))
+		TmpRec->(DbCloseArea())
+	EndIf
+
+	BEGINSQL ALIAS "TmpRec"
+		SELECT
+			R_E_C_N_O_ Recno
+		FROM
+			%TABLE:SF1%
+		WHERE
+			F1_FILIAL = %EXP:XFILIAL("SF1")%
+			AND F1_DOC = %EXP:ZBY->ZBY_DOC%
+			AND F1_SERIE = %EXP:ZBY->ZBY_SERIE%
+			AND F1_FORNECE = %EXP:ZBY->ZBY_FORNEC%
+			AND F1_LOJA = %EXP:ZBY->ZBY_LOJA%
+			AND %NOTDEL%
+			AND F1_STATUS = ' '
+	ENDSQL
+
+	If Msgyesno("Deseja Devolver esta Nota? " + ZBY->ZBY_DOC+' / '+Alltrim(ZBY->ZBY_SERIE) + " Agora ?")
+
+		aRotina := {;
+			{ "Pesquisar",   "AxPesqui",    0, 1}, ;
+			{ "Visualizar",  "A103NFiscal", 0, 2}, ;
+			{ "Incluir",     "A103NFiscal", 0, 3}, ;
+			{ "Classificar", "A103NFiscal", 0, 4}, ;
+			{ "Retornar",    "A103Devol",   0, 3}, ;
+			{ "Excluir",     "A103NFiscal", 3, 5}, ;
+			{ "Imprimir",    "A103Impri",   0, 4}, ;
+			{ "Legenda",     "A103Legenda", 0, 2} }
+
+		DbSelectArea("SF1")
+		DbGoto(TmpRec->Recno)
+		A103Devol("SF1",SF1->(Recno()),3,.F.,.F.)
+
+		TmpRec->(DbCloseArea())
+
+	EndIf
+
+	FWRestArea(aArea)
 
 Return (Nil)
