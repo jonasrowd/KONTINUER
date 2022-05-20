@@ -61,7 +61,7 @@ User Function KCOMF034()
     @ 020, 120 MsGet aGets[03][01] Var aGets[03][02] Picture "@!" Size 030, 010 Of oT01 Pixel When .F.
     // Loja do fornecedor amarrado na pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[04][03] + "'}"), 012, 170, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
-    @ 020, 170 MsGet aGets[04][01] Var aGets[04][02] Picture "@!" Size 020, 010 Of oT01 Pixel When .F.
+    @ 020, 170 MsGet  If(!Empty(aGets[04][02]),StrZero(aGets[04][02],2),Space(TamSx3("F1_LOJA")[01])) Var aGets[04][02] Picture "@!" Size 020, 010 Of oT01 Pixel When .F.
 
     //Grupo 02 Tela intermediária da interface gráfica
     @ 041, 003 To 075, (aSize[5]/2) Title " Dados da Pré-Nota "
