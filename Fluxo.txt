@@ -20,4 +20,6 @@ MICRO
 
 TODA DOCUMENTAÇÃO E FONTES UTILIZADOS ENCONTRAM-SE EM: E:\@Totvs\Protheus\Producao\Ambiente\@Samcorp\kontinuer
 
+RPO da produção foi clonado 20/05/2022 13:30 para a pasta E:\@Totvs\Protheus\Producao\Ambiente\apoSamcorp1 e aplicados os pacotes desta customização.
+
 JONAS MACHADO
