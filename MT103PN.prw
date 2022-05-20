@@ -62,16 +62,9 @@ User Function MT103PN()
 			cMsg := "Aprovada com Quantidade Divergente do Pedido de Compras"
 		Case (TMPCLA->ZBY_STATUS=='A' .AND. TMPCLA->ZBY_SITUAC == 'A')
 			cMsg := "Aprovada com Preço e Quantidade Divergentes do Pedido de Compras"
-		Case (TMPCLA->ZBY_STATUS=='P' .AND. TMPCLA->ZBY_SITUAC == 'R')
-			cMsg := "Rejeitada por Preço Divergente do Pedido de Compras"
-		Case (TMPCLA->ZBY_STATUS=='Q' .AND. TMPCLA->ZBY_SITUAC == 'R')
-			cMsg := "Rejeitada por Quantidade Divergente do Pedido de Compras"
-		Case (TMPCLA->ZBY_STATUS=='A' .AND. TMPCLA->ZBY_SITUAC == 'R')
-			cMsg := "Rejeitada por Preço e Quantidade Divergentes do Pedido de Compas"
-
 		EndCase
 
-		lOk := MsgYesNo("Esta Pré-Nota foi "+ cMsg +".", "Deseja continuar a classificação?")
+		lOk := IIf((TMPCLA->ZBY_STATUS=='I' .AND. TMPCLA->ZBY_SITUAC == 'A'),.F.,MsgYesNo("Esta Pré-Nota foi "+ cMsg +".", "Deseja continuar a classificação?"))
 
 	EndIf
 

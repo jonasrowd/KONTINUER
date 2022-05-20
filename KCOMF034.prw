@@ -49,19 +49,19 @@ User Function KCOMF034()
     //Grupo 01 cabeçalho da interface gráfica
     @ 003, 003 To 038, (aSize[5]/2) Title " Cabeçalho da pré-nota "
 
-    // Dados a serem carregados no cabeçalho da interface gráfica TODO: Alterar a consulta padrão de acordo com a necessidade da empresa
+    // Dados a serem carregados no cabeçalho da interface gráfica
     // Número da Pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[01][03] + "'}"), 012, 007, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
-    @ 020, 007 MsGet aGets[01][01] Var aGets[01][02] Picture "@!" Size 050, 010 Of oT01 F3 "SF102" Pixel When .T.
+    @ 020, 007 MsGet aGets[01][01] Var aGets[01][02] Picture "@!" Size 050, 010 Of oT01 F3 "SF1PN1" Pixel When .T.
     // Série da Pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[02][03] + "'}"), 012, 70, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
-    @ 020, 70 MsGet aGets[02][01] Var aGets[02][02] Picture "@!" Size 030, 010 Of oT01 Pixel When .T.
+    @ 020, 70 MsGet aGets[02][01] Var aGets[02][02] Picture "@!" Size 030, 010 Of oT01 Pixel When .F.
     // Fornecedor amarrado na pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[03][03] + "'}"), 012, 120, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
-    @ 020, 120 MsGet aGets[03][01] Var aGets[03][02] Picture "@!" Size 030, 010 Of oT01 Pixel When .T.
+    @ 020, 120 MsGet aGets[03][01] Var aGets[03][02] Picture "@!" Size 030, 010 Of oT01 Pixel When .F.
     // Loja do fornecedor amarrado na pré-nota
     TSay():Create(oT01, &("{|| '" + aGets[04][03] + "'}"), 012, 170, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(0, 0, 139), Nil, 290, 30)
-    @ 020, 170 MsGet aGets[04][01] Var aGets[04][02] Picture "@!" Size 020, 010 Of oT01 Pixel When .T.
+    @ 020, 170 MsGet aGets[04][01] Var aGets[04][02] Picture "@!" Size 020, 010 Of oT01 Pixel When .F.
 
     //Grupo 02 Tela intermediária da interface gráfica
     @ 041, 003 To 075, (aSize[5]/2) Title " Dados da Pré-Nota "
@@ -90,7 +90,7 @@ User Function KCOMF034()
 
     // Legendas relacionadas com os itens da pré-nota
     TBtnBmp2():New((aSize[6] - 20), 010, 22, 22, 'BR_VERDE', Nil, Nil, Nil, {|| }, oT01, "", Nil, .T.)
-    TSay():Create(oT01, &("{|| 'Documento igual ao Pedido'}"), ((aSize[6]/2) - 09), 20, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(54, 62, 62), Nil, 290, 30)
+    TSay():Create(oT01, &("{|| 'Confere com o Pedido'}"), ((aSize[6]/2) - 09), 20, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(54, 62, 62), Nil, 290, 30)
 
     TBtnBmp2():New((aSize[6] - 20), 210, 22, 22, 'BR_VERMELHO', Nil, Nil, Nil, {|| }, oT01, "", Nil, .T.)
     TSay():Create(oT01, &("{|| 'Preço Divergente'}"), ((aSize[6]/2) - 09), 120, Nil, oFon1, Nil, Nil, Nil, .T., Rgb(54, 62, 62), Nil, 290, 30)
@@ -108,9 +108,9 @@ User Function KCOMF034()
     KCOMF034B()
 
     // Botões no canto inferior direito da tela responsáveis por Confirmar a execução da rotina ou cancelar
-    @ ((aSize[6]/2) - 11), ((aSize[5]/2) - 119) Button "Confirmar" Size 037, 012 Pixel Of oT01 Action Processa({||cFlag := "A", KCOMF034Y() }, "Aprovando Pré-Nota...")
-    @ ((aSize[6]/2) - 11), ((aSize[5]/2) - 78) Button "Rejeitar"  Size 037, 012 Pixel Of oT01 Action Processa({||cFlag := "R", justReject() }, "Rejeitando Pré-Nota...")
-    @ ((aSize[6]/2) - 11), ((aSize[5]/2) - 37) Button "Sair"  Size 037, 012 Pixel Of oT01 Action Close(oT01)
+    @ ((aSize[6]/2) - 11), ((aSize[5]/2) - 119) Button "Confirmar" Size 037, 012 Pixel Of oT01 Action Processa({||cFlag := "A", KCOMF034Y() }, "Confirmando Pré-Nota...")
+    // @ ((aSize[6]/2) - 11), ((aSize[5]/2) - 37) Button "Rejeitar"  Size 037, 012 Pixel Of oT01 Action Processa({||cFlag := "R", justReject() }, "Rejeitando Pré-Nota...")
+    @ ((aSize[6]/2) - 11), ((aSize[5]/2) - 78) Button "Sair"  Size 037, 012 Pixel Of oT01 Action Close(oT01)
 
 
     // Ativa a interface gráfica e apresenta ao usuário
@@ -432,7 +432,7 @@ Static Function KCOMF034Z()
                 SD1.D1_UM,
                 SD1.D1_QUANT,
                 SD1.D1_VUNIT,
-                SD1.D1_QUANT - (SC7.C7_QUANT - SC7.C7_QUJE) TMP_SLVINC,
+                (SC7.C7_QUANT - SD1.D1_QUANT) TMP_SLVINC,
                 SD1.D1_PEDIDO,
                 SD1.D1_ITEMPC,
                 SC7.C7_NUM,
@@ -441,8 +441,8 @@ Static Function KCOMF034Z()
                 SC7.C7_UM,
                 SC7.C7_QUANT,
                 SC7.C7_PRECO,
-                (SC7.C7_QUANT - SC7.C7_QUJE) SALDO,
-                (SC7.C7_QUANT - SC7.C7_QUJE) - SD1.D1_QUANT TMP_SLDENTR,
+                (SC7.C7_QUANT - SD1.D1_QUANT) SALDO,
+                (SC7.C7_QUANT - SD1.D1_QUANT) TMP_SLDENTR,
                 (SC7.C7_PRECO - SD1.D1_VUNIT) TMP_DIFPRC
             FROM
                 %TABLE:SD1% SD1
@@ -535,6 +535,7 @@ Static Function KCOMF034Z()
             AAdd(aLine, SALDO)               //08 - Saldo a Antregar
             AAdd(aLine, TMP_SLDENTR)         //09 - Diferença
             AAdd(aLine, C7_PRODUTO)          //10 - Código do produto         
+            AAdd(aLine, TMP_DIFPRC)          //11 - Diferença de preço         
 
             // Adiciona a linha ao vetor do grid
             AAdd(aL2, AClone(aLine))
@@ -581,6 +582,99 @@ Static Function KCOMF034Z()
 
     // Limpa vetores da memória
     FwFreeArray(aArea)
+
+Return (Nil)
+
+/*/{Protheus.doc} KCOMF034Y
+    Persiste os dados nas tabelas customizadas
+    @type function
+    @version 12.1.33
+    @author Jonas Machado
+    @since 12/05/2022
+/*/
+Static Function KCOMF034Y(cMotivo)
+
+    Local aArea     := FwGetArea()    // Salva área anteriormente posicionada
+    Local nx        := 0              // Variável contador
+    Local cStatus   := ""
+    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
+    Default cMotivo := "Aprovado" // Só muda no caso de rejeitar a pré-nota
+    
+    // Verifica se não há nenhuma inconsistência antes de persistir os dados no banco
+    If KCOMF034W()
+        // Inicia uma transação
+        BEGIN TRANSACTION
+            // Seleciona a área do cabeçalho das pré-notas avaliadas
+            DbSelectArea("ZBY")
+            // Laço para buscar o Status adequado
+            For nX := 1 To Len(aL1)
+                cStatus += IIf((aL1[nX][07] == 0 .AND. aL1[nX][10] == 0), "I",IIf((aL1[nX][10] != 0 .AND. aL1[nX][07] == 0), "P",;
+                        IIf((aL1[nX][07] != 0 .AND. aL1[nX][10] == 0), "Q", "A")))
+            Next nX
+
+            // Persiste os dados na tabela de cabeçalho das pré-notas avaliadas
+            RecLock("ZBY",.T.)
+                ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
+                ZBY->ZBY_DOC     := aGets[1][2]
+                ZBY->ZBY_SERIE   := cSerie
+                ZBY->ZBY_FORNEC  := aGets[3][2]
+                ZBY->ZBY_LOJA    := aGets[4][2]
+                ZBY->ZBY_EMISSA  := cToD(aDados[2]:cTitle)
+                ZBY->ZBY_NOME    := aDados[3]:cTitle
+                ZBY->ZBY_DTHORA  := DToC(Date()) + " " + Time()
+                ZBY->ZBY_USUA    := cUsername
+                ZBY->ZBY_STATUS  := IIf("A" $ cStatus, "A", IIf("Q" $ cStatus, "Q", IIf("P" $ cStatus, "P", "I")))
+                ZBY->ZBY_SITUAC  := cFlag
+                ZBY->ZBY_MOTIVO  := cMotivo + IIf("A" $ cStatus, " - Preço e Quantidade divergem do pedido de compras.", ;
+                IIf("Q" $ cStatus, " - Quantidade divergente do solicitado no pedido de compras.", ;
+                IIf("P" $ cStatus, " - Preço unitário diverge do acordado no pedido de compras.", " - Confere com o pedido de compra.")))
+            MsUnlock()
+                ZBY->ZBY_OK     := " "
+
+            // Fecha a área do cabeçalho das pré-notas avaliadas
+            ZBY->(DbCloseArea())
+        
+            // Seleciona a área dos itens avaliados da pré-nota
+            DbSelectArea("ZBZ")
+                // Percorre os itens da Pré-Nota para persistir os dados no banco
+                For nX := 1 To Len(aL1)
+                    // Grava os itens da pré-nota
+                    RecLock("ZBZ",.T.)
+                        ZBZ->ZBZ_FILIAL := FWXFILIAL("ZBZ")
+                        ZBZ->ZBZ_DOC    := aGets[1][2]
+                        ZBZ->ZBZ_SERIE  := cSerie
+                        ZBZ->ZBZ_FORNEC := aGets[3][2]
+                        ZBZ->ZBZ_LOJA   := aGets[4][2]
+                        ZBZ->ZBZ_NOME   := aDados[3]:cTitle
+                        ZBZ->ZBZ_EMISSA := CToD(aDados[2]:cTitle)
+                        ZBZ->ZBZ_PRODUT := aL1[nX][2]
+                        ZBZ->ZBZ_DOCQTD := aL1[nX][5]
+                        ZBZ->ZBZ_DOCUNM := aL1[nX][4]
+                        ZBZ->ZBZ_DOCVLR := aL1[nX][6]
+                        ZBZ->ZBZ_DOCDIF := aL1[nX][7]
+                        ZBZ->ZBZ_PEDNUM := aL1[nX][8]
+                        ZBZ->ZBZ_PEDITM := aL1[nX][9]
+                        ZBZ->ZBZ_PEDQTD := aL2[nX][6]
+                        ZBZ->ZBZ_PEDUNM := aL2[nX][5]
+                        ZBZ->ZBZ_PEDVLR := aL2[nX][7]
+                        ZBZ->ZBZ_PEDFAL := aL2[nX][8]
+                        ZBZ->ZBZ_PEDDIF := aL1[nX][10]
+                        ZBZ->ZBZ_DTHORA := DToC(Date()) + " " + Time()
+                        ZBZ->ZBZ_USUA   := cUsername
+                    MsUnlock()
+                Next nX
+            // Fecha a área da tabela
+            ZBY->(DbCloseArea())
+            ZBZ->(DbCloseArea())
+        // Encerra a transação
+        END TRANSACTION
+    EndIf
+
+    // Executa a função de montagem do e-mail
+    KCOMF034V()
+
+    // Restaura a área anteriormente posicionada
+    FwRestArea(aArea)
 
 Return (Nil)
 
@@ -668,7 +762,8 @@ Static Function KCOMF034W()
             SELECT
                 ZBY_USUA,
                 ZBY_DTHORA,
-                ZBY_STATUS
+                ZBY_STATUS,
+                ZBY_SITUAC
             FROM 
                 %TABLE:ZBY% ZBY
             WHERE
@@ -681,14 +776,14 @@ Static Function KCOMF034W()
         ENDSQL
 
         While TMPZBY->(!EOF())
-            If TMPZBY->ZBY_STATUS == 'R'
+            If TMPZBY->ZBY_SITUAC == 'R'
                 Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento já foi analisado neste processo.",;
                 1, 0, NIL, NIL, NIL, NIL, NIL, {"Analisado por: " + TMPZBY->ZBY_USUA + ENTER +;
                 "Data: " + TMPZBY->ZBY_DTHORA  + ENTER +;
                 "Situação: Rejeitado" + ENTER +;
                 "Selecione outro documento para prosseguir."})
                 l_Ret := .F.
-            ElseIf TMPZBY->ZBY_STATUS == 'A'
+            ElseIf TMPZBY->ZBY_SITUAC == 'A'
                 Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento já foi analisado neste processo.",;
                 1, 0, NIL, NIL, NIL, NIL, NIL, {"Analisado por: " + TMPZBY->ZBY_USUA + ENTER +;
                 "Data: " + TMPZBY->ZBY_DTHORA  + ENTER +;
@@ -705,95 +800,6 @@ Static Function KCOMF034W()
     FwRestArea(aArea)
 
 Return (l_Ret)
-
-/*/{Protheus.doc} KCOMF034Y
-    Persiste os dados nas tabelas customizadas
-    @type function
-    @version 12.1.33
-    @author Jonas Machado
-    @since 12/05/2022
-/*/
-Static Function KCOMF034Y(cMotivo)
-
-    Local aArea     := FwGetArea()    // Salva área anteriormente posicionada
-    Local nx        := 0              // Variável contador
-    Local cStatus   := ""
-    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
-    Default cMotivo := "Aprovado" // Só muda no caso de rejeitar a pré-nota
-    
-    // Verifica se não há nenhuma inconsistência antes de persistir os dados no banco
-    If KCOMF034W()
-        // Inicia uma transação
-        BEGIN TRANSACTION
-            // Seleciona a área do cabeçalho das pré-notas avaliadas
-            DbSelectArea("ZBY")
-            // Laço para buscar o Status adequado
-            For nX := 1 To Len(aL1)
-                cStatus += IIf((aL1[nX][07] == 0 .AND. aL1[nX][10] == 0), "I",IIf((aL1[nX][10] != 0 .AND. aL1[nX][07] == 0), "P",;
-                        IIf((aL1[nX][07] != 0 .AND. aL1[nX][10] == 0), "Q", "A")))
-            Next nX
-
-            // Persiste os dados na tabela de cabeçalho das pré-notas avaliadas
-            RecLock("ZBY",.T.)
-                ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
-                ZBY->ZBY_DOC     := aGets[1][2]
-                ZBY->ZBY_SERIE   := cSerie
-                ZBY->ZBY_FORNEC  := aGets[3][2]
-                ZBY->ZBY_LOJA    := aGets[4][2]
-                ZBY->ZBY_EMISSA  := cToD(aDados[2]:cTitle)
-                ZBY->ZBY_NOME    := aDados[3]:cTitle
-                ZBY->ZBY_DTHORA  := DToC(Date()) + " " + Time()
-                ZBY->ZBY_USUA    := cUsername
-                ZBY->ZBY_STATUS  := IIf("A" $ cStatus, "A", IIf("Q" $ cStatus, "Q", IIf("P" $ cStatus, "P", "I")))
-                ZBY->ZBY_SITUAC  := If(cMotivo=="Aprovado", "A", "R")
-                ZBY->ZBY_MOTIVO  := cMotivo
-            MsUnlock()
-            // Fecha a área do cabeçalho das pré-notas avaliadas
-            ZBY->(DbCloseArea())
-        
-            // Seleciona a área dos itens avaliados da pré-nota
-            DbSelectArea("ZBZ")
-                // Percorre os itens da Pré-Nota para persistir os dados no banco
-                For nX := 1 To Len(aL1)
-                    // Grava os itens da pré-nota
-                    RecLock("ZBZ",.T.)
-                        ZBZ->ZBZ_FILIAL := FWXFILIAL("ZBZ")
-                        ZBZ->ZBZ_DOC    := aGets[1][2]
-                        ZBZ->ZBZ_SERIE  := cSerie
-                        ZBZ->ZBZ_FORNEC := aGets[3][2]
-                        ZBZ->ZBZ_LOJA   := aGets[4][2]
-                        ZBZ->ZBZ_NOME   := aDados[3]:cTitle
-                        ZBZ->ZBZ_EMISSA := CToD(aDados[2]:cTitle)
-                        ZBZ->ZBZ_PRODUT := aL1[nX][2]
-                        ZBZ->ZBZ_DOCQTD := aL1[nX][5]
-                        ZBZ->ZBZ_DOCUNM := aL1[nX][4]
-                        ZBZ->ZBZ_DOCVLR := aL1[nX][6]
-                        ZBZ->ZBZ_DOCDIF := aL1[nX][7]
-                        ZBZ->ZBZ_PEDNUM := aL1[nX][8]
-                        ZBZ->ZBZ_PEDITM := aL1[nX][9]
-                        ZBZ->ZBZ_PEDQTD := aL2[nX][6]
-                        ZBZ->ZBZ_PEDUNM := aL2[nX][5]
-                        ZBZ->ZBZ_PEDVLR := aL2[nX][7]
-                        ZBZ->ZBZ_PEDFAL := aL2[nX][8]
-                        ZBZ->ZBZ_PEDDIF := aL2[nX][9]
-                        ZBZ->ZBZ_DTHORA := DToC(Date()) + " " + Time()
-                        ZBZ->ZBZ_USUA   := cUsername
-                    MsUnlock()
-                Next nX
-            // Fecha a área da tabela
-            ZBY->(DbCloseArea())
-            ZBZ->(DbCloseArea())
-        // Encerra a transação
-        END TRANSACTION
-    EndIf
-
-    // Executa a função de montagem do e-mail
-    KCOMF034V()
-
-    // Restaura a área anteriormente posicionada
-    FwRestArea(aArea)
-
-Return (Nil)
 
 /*/{Protheus.doc} justReject
 	Tela de justificativa para a rejeição da pré-nota
@@ -839,20 +845,20 @@ Return (Nil)
 Static Function KCOMF034V()
 
 	Local c_Cabec   := ""
-	Local c_MailFin	:= SuperGetMv("KR_MAILPRE",, "jonas.machado@samcorp.com.br")
-    Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
+	Local cDest	:= SuperGetMv("KR_MAILPRE",, "jonas.machado@samcorp.com.br")
+    // Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
 
-    c_Cabec := ;
-            '  <b>Pré-Nota:</b>&nbsp;' + aGets[1][2] + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Série:</b>&nbsp;' + cSerie + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Emissão:</b>&nbsp;' + aDados[2]:cTitle + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Fornecedor:</b>&nbsp;' + aGets[3][2] + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Loja:</b>&nbsp;' + aGets[4][2] + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Usuário:</b>&nbsp;' + cUsername + ENTER +;
-            '  &nbsp;&nbsp;&nbsp;<b>Data/Hora:</b>&nbsp;' + DToC(Date()) + " " + Time() 
+    // c_Cabec := ;
+    //         '  <b>Pré-Nota:</b>&nbsp;' + aGets[1][2] + ENTER +;
+    //         '  &nbsp;&nbsp;&nbsp;<b>Série:</b>&nbsp;' + cSerie + ENTER +;
+    //         '  &nbsp;&nbsp;&nbsp;<b>Emissão:</b>&nbsp;' + aDados[2]:cTitle + ENTER +;
+    //         '  &nbsp;&nbsp;&nbsp;<b>Fornecedor:</b>&nbsp;' + aGets[3][2] + ENTER +;
+    //         '  &nbsp;&nbsp;&nbsp;<b>Loja:</b>&nbsp;' + aGets[4][2] + ENTER +;
+    //         '  &nbsp;&nbsp;&nbsp;<b>Usuário:</b>&nbsp;' + cUsername + ENTER +;
+    //         '  &nbsp;&nbsp;&nbsp;<b>Data/Hora:</b>&nbsp;' + DToC(Date()) + " " + Time() 
 
     // Função para enviar e-mail
-	EnviarEmail(c_MailFin, c_Cabec, cUsername, DToC(Date()) + " " + Time())
+	EnviarEmail(cDest, c_Cabec, cUsername, DToC(Date()) + " " + Time())
 
     // Reseta a Rotina
     ReloadChv(.T.)
@@ -874,25 +880,248 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo)
 
 	Local _cCorpo := "" // Corpo do e-mail
     Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
+    Local nX := 0 
 
-    _cCorpo := ;
-                '<p>Prezado(a),</p>' +;
-                '<p>Pré-nota: ' + aGets[1][2] + ENTER + ;
-                ' Série: '+ cSerie + ENTER +;
-                ' Fornecedor: ' + aGets[3][2] + ENTER +;
-                ' Loja: ' + aGets[4][2] + ENTER +;
-                ' Foi ' + IIf(cFlag == "A","Aprovada", "Rejeitada" ) + ENTER +;
-                ' em ' + DToC(Date()) + " " + Time()  + '.</p>' + ENTER +;
-                '<table>' +;
-                '<tr>' +; 
-                '  <td align="left" style="background-color: #EEEEEE; padding: 10px;">' +;
-                _cCabec +;
-                '  </td>' +;
-                '</tr>' +;
-                '</table>'
+	//Ordene a tabela
+	SA2->(DbSetOrder(1))
+
+	//Posiciona no fornecedor
+	SA2->(DbSeek(xFilial("SA2") + aGets[3][2]+aGets[4][2]))
+
+    _cCorpo := '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    _cCorpo += '<html>
+	_cCorpo += '<head>
+	_cCorpo += '  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+	_cCorpo += '  <title>FOLLOWUP</title>
+	_cCorpo += '</head>
+	_cCorpo += '<body>
+	_cCorpo += '<table style="text-align: left; font-weight: bold; color: rgb(255, 255, 255); width: 1650px; height: 35px;" border="0" cellpadding="0" cellspacing="0">
+	_cCorpo += '  <tbody>
+	_cCorpo += '    <tr>
+	_cCorpo += '      <td style="text-align: center; background-color: rgb(51, 51, 51);"><big><big><big>ANÁLISE DE PRÉ-NOTA</big></big></big></td>
+	_cCorpo += '    </tr>
+	_cCorpo += '  </tbody>
+	_cCorpo += '</table>
+	_cCorpo += '<br>
+	_cCorpo += '<br>
+	_cCorpo += '<table style="text-align: left; width: 1650px; height: 110px;" border="0" cellpadding="2" cellspacing="0">
+	_cCorpo += '  <tbody>
+	_cCorpo += '    <tr>
+	_cCorpo += '      <td style="vertical-align: top; background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Dados do Fornecedor :
+	_cCorpo += '			<br><big><span style="color: rgb(0, 0, 0);">&nbsp; '+ SA2->A2_COD + '/' + SA2->A2_LOJA +  ' - ' + SA2->A2_NOME +'</span>
+	_cCorpo += '			<br><span style="color: rgb(0, 0, 0);">&nbsp;' + Alltrim(SA2->A2_END) + If (!Empty(SA2->A2_COMPLEM), " - " + Alltrim(SA2->A2_COMPLEM), "") + If (!Empty(SA2->A2_BAIRRO), " - " + SA2->A2_BAIRRO, "") +'</span>
+	_cCorpo += '      <br><span style="color: rgb(0, 0, 0);">&nbsp;'+ Alltrim(SA2->A2_MUN) + "/" + SA2->A2_EST +  " - CEP: " + Transform(SA2->A2_CEP, "@R 99.999-999")
+	_cCorpo += '			<br>&nbsp;CNPJ: '+Transform(SA2->A2_CGC, "@R 99.999.999/9999-99")+'</span></big></span><big><span  style="font-weight: bold;"> - I.E: '+SA2->A2_INSCR+'</span></big></td>
+    _cCorpo += '  </tr>
+	_cCorpo += '  </tbody>
+	_cCorpo += '</table>
+	_cCorpo += '<br>
+
+    // Verifica se o alias já estava aberto, se estiver, fecha
+    If Select("TMPZBY") > 0
+        TMPZBY->(DbSelectArea("TMPZBY"))
+        TMPZBY->(DbCloseArea())
+    EndIf
+
+    BEGINSQL ALIAS "TMPZBY"
+        SELECT
+            ZBY.*
+        FROM 
+            %TABLE:ZBY% ZBY
+        WHERE
+            ZBY_FILIAL     = %XFILIAL:ZBY%
+            AND ZBY_DOC    = %EXP:aGets[1][2]%
+            AND ZBY_SERIE  = %EXP:cSerie%
+            AND ZBY_FORNEC = %EXP:aGets[3][2]%
+            AND ZBY_LOJA   = %EXP:aGets[4][2]%
+            AND %NOTDEL%
+    ENDSQL
+    
+	_cCorpo += '<table style="text-align: left; width: 1650px; height: 44px;" border="0" cellpadding="0" cellspacing="3">
+	_cCorpo += '  <tbody>
+	_cCorpo += '    <tr>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Pré-Nota:
+	_cCorpo += '      <br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+TMPZBY->ZBY_DOC+'</span></big></span></td>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Série:
+	_cCorpo += '      <br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+TMPZBY->ZBY_SERIE+'</span></big></span></td>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Emissão:
+	_cCorpo += '	    <br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+TMPZBY->ZBY_EMISSA+'</span></big></span></td>
+	_cCorpo += '    </tr>
+	_cCorpo += '  </tbody>
+	_cCorpo += '</table>
+	_cCorpo += '<br>
+	_cCorpo += '<table style="text-align: left; width: 1650px; height: 38px;" border="0" cellpadding="0" cellspacing="0">
+	_cCorpo += '  <tbody>
+	_cCorpo += '    <tr>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Avaliado por:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+cUserName+'</span></big></span></td>
+	_cCorpo += '		</tr>
+	_cCorpo += '  </tbody>
+	_cCorpo += '</table>
+	_cCorpo += '<br>
+	_cCorpo += '<table style="text-align: left; width: 1650px; height: 41px;" border="0" cellpadding="0" cellspacing="0"> 
+	_cCorpo += '	<tbody>
+	_cCorpo += '    <tr>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Motivo:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+TMPZBY->ZBY_MOTIVO+'</span></big></span></td>
+	_cCorpo += '    </tr>
+	_cCorpo += '  </tbody>
+	_cCorpo += '</table>
+	_cCorpo += '<br>
+	_cCorpo += '<br>
+	_cCorpo += '<table style="text-align: left; width: 1650px; height: 137px;" border="0" cellpadding="0" cellspacing="2">
+	_cCorpo += '  <tbody>
+	_cCorpo += '    <tr style="font-weight: bold;">
+	_cCorpo += '      <td rowspan="1" colspan="15" style="text-align: center; width: 111px; background-color: rgb(237, 237, 237); height: 31px;"><big><big>QUADRO COMPARATIVO</big></big></td>
+	_cCorpo += '    </tr>
+	_cCorpo += '    <tr>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">ITEM</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">CÓDIGO</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">DESCRIÇÃO</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">QTDE NF.</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">QTDE PED.</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">UN.NF</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">UN.PED</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">V.UNITNF</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">V.UNIPED</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">OBSERVA&Ccedil;&Atilde;O</td>
+	_cCorpo += '    </tr>
+
+    KCOMF034C() 
+
+	//Acessa o inicio da query
+	QWF->(DbGoTop())
+	//Loop nos itens
+	While (!QWF->(Eof()))
+        nX++
+		_cCorpo += '    <tr>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); text-align: center;">%IT%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); ">&nbsp;%COD%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); ">&nbsp;%DESC%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); ">&nbsp;%QTD%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); ">&nbsp;%QTD2%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); ">&nbsp;%UN%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); ">&nbsp;%UN2%</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); text-align: right;">&nbsp;%VUNIT%&nbsp;</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255); text-align: right;">%VUNIT2%&nbsp;</td>
+		_cCorpo += '      <td style="height: 31px; xbackground-color: rgb(255, 255, 255);">&nbsp;%OBS%</td>
+		_cCorpo += '    </tr>
+
+		//Substitui os itens
+		_cCorpo := StrTran(_cCorpo, "%IT%"			, QWF->D1_ITEMPC)
+		_cCorpo := StrTran(_cCorpo, "%COD%"			, QWF->C7_PRODUTO)
+		_cCorpo := StrTran(_cCorpo, "%DESC%"		, U_StrxHtml(Alltrim(QWF->B1_DESC)))
+		_cCorpo := StrTran(_cCorpo, "%QTD%"			, Alltrim(Transform(QWF->D1_QUANT, "@E 999,999,999")))
+		_cCorpo := StrTran(_cCorpo, "%QTD2%"			, Alltrim(Transform(QWF->C7_QUANT, "@E 999,999,999")))
+		_cCorpo := StrTran(_cCorpo, "%UN%"			, QWF->D1_UM)
+		_cCorpo := StrTran(_cCorpo, "%UN2%"			, QWF->C7_UM)
+		_cCorpo := StrTran(_cCorpo, "%VUNIT%"		, Alltrim(Transform(QWF->D1_VUNIT, "@E 999,999,999.99")))
+		_cCorpo := StrTran(_cCorpo, "%VUNIT2%"		, Alltrim(Transform(QWF->C7_PRECO, "@E 999,999,999.99")))
+		_cCorpo := StrTran(_cCorpo, "%OBS%"			, Alltrim(QWF->C7_OBS))
+
+		//Próximo registro
+		QWF->(DbSkip())
+
+	EndDo
+
+        DbSelectArea("ZBY")
+        DbGoTo(TMPZBY->R_E_C_N_O_)
+		//Atualiza a flag
+		RECLOCK("ZBY",.F.)
+            ZBY->ZBY_OK = '1'
+        MSUNLOCK()
+
+	//Fecha a query
+	QWF->(DbCloseArea())
+
+	//Finaliza
+	_cCorpo += '  </tbody>
+	_cCorpo += '</table>
+	_cCorpo += '</body>
+	_cCorpo += '</html>    
 
     // Envia os dados para a rotina que envia o email.
-    StartJob("U_TBSENDMAIL()", GetEnvServer(), .F., cEmpAnt, cFilAnt, _cEmail, _cCorpo, AllTrim(SM0->M0_NOMECOM) + ;
-    " - Comunicado de análise Pré-Nota", .F.)
+    StartJob("U_TBSENDMAIL()", GetEnvServer(), .F., cEmpAnt, cFilAnt, _cEmail, _cCorpo, AllTrim(SM0->M0_NOMECOM) + " - Comunicado de análise Pré-Nota", .F.)
 
 Return (Nil)
+
+Static Function KCOMF034C()
+
+        Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
+
+        BEGINSQL ALIAS "QWF"
+            SELECT
+                SF1.F1_DOC,
+                SF1.F1_SERIE,
+                SF1.F1_EMISSAO,
+                SA2.A2_NOME,
+                SD1.D1_ITEM,
+                SD1.D1_COD,
+                SB1.B1_DESC,
+                SD1.D1_TP,
+                SD1.D1_UM,
+                SD1.D1_QUANT,
+                SD1.D1_VUNIT,
+                SD1.D1_TOTAL,
+                (SC7.C7_QUANT - SC7.C7_QUJE) - SD1.D1_QUANT  TMP_SLVINC,
+                SD1.D1_PEDIDO,
+                SD1.D1_ITEMPC,
+                SC7.C7_NUM,
+                SC7.C7_ITEM,
+                SC7.C7_PRODUTO,
+                SC7.C7_UM,
+                SC7.C7_QUANT,
+                SC7.C7_PRECO,
+                (SC7.C7_QUANT - SC7.C7_QUJE) SALDO,
+                (SC7.C7_QUANT - SC7.C7_QUJE) - SD1.D1_QUANT TMP_SLDENTR,
+                (SC7.C7_PRECO - SD1.D1_VUNIT) TMP_DIFPRC,
+                C7_XLARG,
+                C7_XCOMPR,
+                C7_XQTD2,
+                C7_XPRODES,
+                C7_OP,
+                C7_OBS,
+                D1_TP,
+                C7_XTRT
+            FROM
+                %TABLE:SD1% SD1
+                INNER JOIN
+                    %TABLE:SF1% SF1
+                    ON
+                        SF1.F1_FILIAL = SD1.D1_FILIAL
+                        AND SF1.F1_DOC = SD1.D1_DOC
+                        AND SF1.F1_SERIE = SD1.D1_SERIE
+                        AND SF1.F1_FORNECE = SD1.D1_FORNECE
+                        AND SF1.F1_LOJA = SD1.D1_LOJA
+                        AND SF1.%NOTDEL%
+                INNER JOIN
+                    %TABLE:SB1% SB1
+                    ON
+                        SB1.B1_COD = SD1.D1_COD
+                        //AND SB1.B1_FILIAL = SD1.D1_FILIAL
+                        AND SB1.%NOTDEL%
+                INNER JOIN
+                    %TABLE:SA2% SA2
+                    ON
+                        SA2.A2_COD = SF1.F1_FORNECE
+                        AND SA2.A2_LOJA = SF1.F1_LOJA
+                        //AND SA2.A2_FILIAL = SF1.F1_FILIAL
+                        AND SA2.%NOTDEL%
+                INNER JOIN 
+                    %TABLE:SC7% SC7
+                    ON
+                        SC7.C7_NUM = SD1.D1_PEDIDO
+                        AND SC7.C7_FILIAL = SD1.D1_FILIAL
+                        AND SC7.C7_PRODUTO = SD1.D1_COD
+                        AND SC7.C7_ITEM = SD1.D1_ITEMPC
+                        AND SC7.C7_FORNECE = SD1.D1_FORNECE
+                        AND SC7.C7_LOJA = SD1.D1_LOJA
+                        AND SC7.%NOTDEL%
+            WHERE
+                SD1.D1_FILIAL = %XFILIAL:SD1%
+                AND SD1.D1_DOC = %EXP:aGets[1][2]%
+                AND SD1.D1_SERIE = %EXP:cSerie%
+                AND SD1.D1_FORNECE = %EXP:aGets[3][2]%
+                AND SD1.D1_LOJA = %EXP:aGets[4][2]%
+                AND SD1.%NOTDEL%
+        ENDSQL
+	
+Return Nil
