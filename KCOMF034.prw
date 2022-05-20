@@ -598,7 +598,7 @@ Static Function KCOMF034Y(cMotivo)
     Local nx        := 0              // Variável contador
     Local cStatus   := ""
     Local cSerie := IF(!EMPTY(aGets[2][2]),aGets[2][2],SPACE(TamSX3("F1_SERIE")[1]))
-    Default cMotivo := "Aprovado" // Só muda no caso de rejeitar a pré-nota
+    Default cMotivo := "Analisado" // Só muda no caso de rejeitar a pré-nota
     
     // Verifica se não há nenhuma inconsistência antes de persistir os dados no banco
     If KCOMF034W()
@@ -628,8 +628,8 @@ Static Function KCOMF034Y(cMotivo)
                 ZBY->ZBY_MOTIVO  := cMotivo + IIf("A" $ cStatus, " - Preço e Quantidade divergem do pedido de compras.", ;
                 IIf("Q" $ cStatus, " - Quantidade divergente do solicitado no pedido de compras.", ;
                 IIf("P" $ cStatus, " - Preço unitário diverge do acordado no pedido de compras.", " - Confere com o pedido de compra.")))
-            MsUnlock()
                 ZBY->ZBY_OK     := " "
+            MsUnlock()
 
             // Fecha a área do cabeçalho das pré-notas avaliadas
             ZBY->(DbCloseArea())
@@ -809,31 +809,31 @@ Return (l_Ret)
 	@since 21/07/2021
 	@return variant, Nil
 /*/
-Static Function justReject()
+// Static Function justReject()
 
-	Local oGet1     := Nil
-	Local oSay1     := Nil
-	Local oPanel1   := Nil
-	Local oSButton1 := Nil
-	Local oSButton2 := Nil
-	Local cGet1     := "Rejeitado " + Space(90)
-	Static oDlgJust := Nil
+    // 	Local oGet1     := Nil
+    // 	Local oSay1     := Nil
+    // 	Local oPanel1   := Nil
+    // 	Local oSButton1 := Nil
+    // 	Local oSButton2 := Nil
+    // 	Local cGet1     := "Rejeitado " + Space(90)
+    // 	Static oDlgJust := Nil
 
-    If KCOMF034W()
+    //     If KCOMF034W()
 
-        DEFINE MSDIALOG oDlgJust TITLE "Informe o motivo." FROM 000, 000  TO 180, 680 COLORS 0, 16777215 PIXEL
+    //         DEFINE MSDIALOG oDlgJust TITLE "Informe o motivo." FROM 000, 000  TO 180, 680 COLORS 0, 16777215 PIXEL
 
-            @ 003, 004 MSPANEL oPanel1 SIZE 327, 078 OF oDlgJust COLORS 0, 16777215 RAISED
-            @ 016, 010 SAY oSay1 PROMPT "Justificativa:" SIZE 063, 007 OF oPanel1 COLORS 0, 16777215 PIXEL
-            @ 033, 012 MSGET oGet1 VAR cGet1 SIZE 311, 010 OF oPanel1 COLORS 0, 16777215 PIXEL
-            DEFINE SBUTTON oSButton1 FROM 057, 295 TYPE 01 OF oPanel1 ENABLE ACTION {|| KCOMF034Y(cGet1), oDlgJust:end() }
-            DEFINE SBUTTON oSButton2 FROM 057, 264 TYPE 02 OF oPanel1 ENABLE ACTION {|| oDlgJust:end() }
+    //             @ 003, 004 MSPANEL oPanel1 SIZE 327, 078 OF oDlgJust COLORS 0, 16777215 RAISED
+    //             @ 016, 010 SAY oSay1 PROMPT "Justificativa:" SIZE 063, 007 OF oPanel1 COLORS 0, 16777215 PIXEL
+    //             @ 033, 012 MSGET oGet1 VAR cGet1 SIZE 311, 010 OF oPanel1 COLORS 0, 16777215 PIXEL
+    //             DEFINE SBUTTON oSButton1 FROM 057, 295 TYPE 01 OF oPanel1 ENABLE ACTION {|| KCOMF034Y(cGet1), oDlgJust:end() }
+    //             DEFINE SBUTTON oSButton2 FROM 057, 264 TYPE 02 OF oPanel1 ENABLE ACTION {|| oDlgJust:end() }
 
-        ACTIVATE MSDIALOG oDlgJust CENTERED
+    //         ACTIVATE MSDIALOG oDlgJust CENTERED
 
-    EndIf
+    //     EndIf
 
-Return (Nil)
+    // Return (Nil)
 
 /*/{Protheus.doc} KCOMF034V
     WF de aprovação ou rejeição da pré-nota
@@ -1021,13 +1021,6 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo)
 		QWF->(DbSkip())
 
 	EndDo
-
-        DbSelectArea("ZBY")
-        DbGoTo(TMPZBY->R_E_C_N_O_)
-		//Atualiza a flag
-		RECLOCK("ZBY",.F.)
-            ZBY->ZBY_OK = '1'
-        MSUNLOCK()
 
 	//Fecha a query
 	QWF->(DbCloseArea())

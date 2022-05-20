@@ -30,9 +30,6 @@ User Function KCOMF037()
 	oBrowse:AddLegend( "ZBY_STATUS=='P' .AND. ZBY_SITUAC == 'A'", "RED"     , "Analisado, Prc Divergente" )
 	oBrowse:AddLegend( "ZBY_STATUS=='Q' .AND. ZBY_SITUAC == 'A'", "YELLOW" 	, "Analisado, Qtde Divergente" )
 	oBrowse:AddLegend( "ZBY_STATUS=='A' .AND. ZBY_SITUAC == 'A'", "ORANGE" 	, "Analisado, Prc/Qtde Divergentes" )
-	// oBrowse:AddLegend( "ZBY_STATUS=='P' .AND. ZBY_SITUAC == 'R'", "LIGHTBLU", "Rejei. Prc Divergente" )
-	// oBrowse:AddLegend( "ZBY_STATUS=='Q' .AND. ZBY_SITUAC == 'R'", "PINK" 	, "Rejei. Qtde Divergente" )
-	// oBrowse:AddLegend( "ZBY_STATUS=='A' .AND. ZBY_SITUAC == 'R'", "BLACK" 	, "Rejei. Prc/Qtde Divergentes" )
 
 	oBrowse:SetFilterDefault("ZBY->ZBY_OK == ' '")
 
@@ -58,7 +55,7 @@ Static Function MenuDef()
 	    // ADD OPTION aRotina TITLE 'Incluir'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_INSERT ACCESS 0 //OPERATION 3
 	    // ADD OPTION aRotina TITLE 'Alterar'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_UPDATE ACCESS 0 //OPERATION 4
 	    // ADD OPTION aRotina TITLE 'Excluir'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_DELETE ACCESS 0 //OPERATION 5
-		ADD OPTION aRotina TITLE 'Classificar'     		ACTION 'CustomClas' OPERATION 6 ACCESS 0
+		ADD OPTION aRotina TITLE 'Classificar'     		ACTION 'U_CustomClas' OPERATION 6 ACCESS 0
 		ADD OPTION aRotina TITLE 'Documento de Entrada' ACTION 'U_ExecPadrao("MATA103")' OPERATION 7 ACCESS 0
 		ADD OPTION aRotina TITLE 'Legenda'     			ACTION 'U_fLegZBY' OPERATION 11 ACCESS 0
 	EndIf
@@ -97,8 +94,8 @@ Static Function ModelDef()
     oModel:SetDescription("Natureza do Gasto")
 
     // DESCRIÇÃO DOS SUBMODELOS
-    oModel:GetModel("ZBYMASTER"):SetDescription("Natureza do Gasto")
-    oModel:GetModel("ZBZDETAIL"):SetDescription("Entidades COntábeis")
+    oModel:GetModel("ZBYMASTER"):SetDescription("Pré-Notas a Classificar")
+    oModel:GetModel("ZBZDETAIL"):SetDescription("Itens Analisados")
     
     oModel:GetModel("ZBZDETAIL"):SetOptional(.T.)
 
@@ -143,7 +140,7 @@ Static Function ViewDef()
 
     // DEFINE OS TÍTULOS DAS SUBVIEWS
     oView:EnableTitleView("VIEW_ZBY")
-    oView:EnableTitleView("VIEW_ZBZ", "ENTIDADES CONTÁBEIS", 0)
+    oView:EnableTitleView("VIEW_ZBZ", "ITENS ANALISADOS PRÉ-NOTA", 0)
 
     oView:SetViewProperty('VIEW_ZBY' , 'SETLAYOUT' , {FF_LAYOUT_HORZ_DESCR_TOP,10} ) 
 
@@ -156,9 +153,9 @@ Return (oView)
 	@author Jonas Machado
 	@since 16/05/2022
 /*/
-Static Function CustomClas()
+User Function CustomClas()
 
-	Local aArea := GetArea()
+	Local aArea := FwGetArea()
 
 	// Verifica se o alias já estava aberto, se estiver, fecha
 	If Select("TmpRec") > 0
@@ -177,31 +174,19 @@ Static Function CustomClas()
 			AND F1_SERIE = %EXP:ZBY->ZBY_SERIE%
 			AND F1_FORNECE = %EXP:ZBY->ZBY_FORNEC%
 			AND F1_LOJA = %EXP:ZBY->ZBY_LOJA%
-			AND %NOTDEL%
 			AND F1_STATUS = ' '
+			AND %NOTDEL%
 	ENDSQL
 
-	// If Msgyesno("Deseja Efetuar a Classificação da Nota " + ZBY->ZBY_DOC+' / '+Alltrim(ZBY->ZBY_SERIE) + " Agora ?")
+	aRotina := FwLoadMenuDef("MATA103")
 
-		aRotina := {;
-			{ "Pesquisar",   "AxPesqui",    0, 1}, ;
-			{ "Visualizar",  "A103NFiscal", 0, 2}, ;
-			{ "Incluir",     "A103NFiscal", 0, 3}, ;
-			{ "Classificar", "A103NFiscal", 0, 4}, ;
-			{ "Retornar",    "A103Devol",   0, 3}, ;
-			{ "Excluir",     "A103NFiscal", 3, 5}, ;
-			{ "Imprimir",    "A103Impri",   0, 4}, ;
-			{ "Legenda",     "A103Legenda", 0, 2} }
+	DbSelectArea("SF1")
+	DbGoto(TmpRec->Recno)
+	A103NFiscal("SF1",SF1->(Recno()),4,.f.,.f.)
 
-		DbSelectArea("SF1")
-		DbGoto(TmpRec->Recno)
-		A103NFiscal("SF1",SF1->(Recno()),4,.f.,.f.)
+	TmpRec->(DbCloseArea())
 
-		TmpRec->(DbCloseArea())
-
-	// EndIf
-
-	RetArea(aArea)
+	FwRestArea(aArea)
 
 Return (Nil)
 
@@ -216,10 +201,10 @@ User Function fLegZBY
 
 	Local aLegenda := {}
 
-	aAdd(aLegenda,{"GREEN"   , "Analisado, Sem Restrição" })
-	aAdd(aLegenda,{"RED"     , "Analisado, Prc Divergente" })
-	aAdd(aLegenda,{"YELLOW"  , "Analisado, Qtde Divergente" })
-	aAdd(aLegenda,{"ORANGE"  , "Analisado, Prc/Qtde Divergentes" })
+	aAdd(aLegenda,{"BR_VERDE"   , "Analisado, Sem Restrição" })
+	aAdd(aLegenda,{"BR_VERMELHO"     , "Analisado, Prc Divergente" })
+	aAdd(aLegenda,{"BR_AMARELO"  , "Analisado, Qtde Divergente" })
+	aAdd(aLegenda,{"BR_LARANJA"  , "Analisado, Prc/Qtde Divergentes" })
 	// aAdd(aLegenda,{"BR_AZUL_CLARO", "Rejei. Prc Divergente" })
 	// aAdd(aLegenda,{"BR_PINK" 	 , "Rejei. Qtde Divergente" })
 	// aAdd(aLegenda,{"BR_PRETO" 	 , "Rejei. Prc/Qtde Divergentes" })

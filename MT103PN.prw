@@ -46,6 +46,7 @@ User Function MT103PN()
 			AND ZBY_FORNEC = %EXP:cA100For%
 			AND ZBY_LOJA = %EXP:cLoja%
 			AND F1_STATUS = ' '
+			AND ZBY_OK = ' '
 			AND ZBY.%NOTDEL%
 	ENDSQL
 
@@ -64,7 +65,11 @@ User Function MT103PN()
 			cMsg := "Aprovada com Preço e Quantidade Divergentes do Pedido de Compras"
 		EndCase
 
-		lOk := IIf((TMPCLA->ZBY_STATUS=='I' .AND. TMPCLA->ZBY_SITUAC == 'A'),.F.,MsgYesNo("Esta Pré-Nota foi "+ cMsg +".", "Deseja continuar a classificação?"))
+		lOk := IIf((TMPCLA->ZBY_STATUS=='I' .AND. TMPCLA->ZBY_SITUAC == 'A'), .T. , MsgYesNo("Esta Pré-Nota foi "+ cMsg +".", "Deseja continuar a classificação?"))
+
+	Else
+		
+		lOk := MsgYesNo("Esta Pré-Nota não passou pela rotina de avaliação.", "Deseja continuar a classificação?")
 
 	EndIf
 
