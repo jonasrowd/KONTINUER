@@ -23,15 +23,14 @@ User Function KCOMF037()
 	oBrowse:SetAlias("ZBY")
 
     //Definimos o título que será exibido como método SetDescription
-	oBrowse:SetDescription("Pré-Notas a Classificar")
+	oBrowse:SetDescription("Documentos para Conferência")
 
 	// Definição da legenda
-	oBrowse:AddLegend( "ZBY_STATUS=='I' .AND. ZBY_SITUAC == 'A'", "GREEN"   , "Analisado, Sem Restrição" )
-	oBrowse:AddLegend( "ZBY_STATUS=='P' .AND. ZBY_SITUAC == 'A'", "RED"     , "Analisado, Prc Divergente" )
-	oBrowse:AddLegend( "ZBY_STATUS=='Q' .AND. ZBY_SITUAC == 'A'", "YELLOW" 	, "Analisado, Qtde Divergente" )
-	oBrowse:AddLegend( "ZBY_STATUS=='A' .AND. ZBY_SITUAC == 'A'", "ORANGE" 	, "Analisado, Prc/Qtde Divergentes" )
+	oBrowse:AddLegend( "ZBY_STATUS == ' ' .AND. ZBY_SITUAC == 'L' ", "GREEN"   , "Não Conferido" )
+	// oBrowse:AddLegend( "ZBY_STATUS == ' ' .AND. ZBY_SITUAC == 'Q' ", "BLUE"    , "Não Conferido CQ" )
+	oBrowse:AddLegend( "ZBY_STATUS != ' ' ", "RED"   , "Conferido" )
 
-	oBrowse:SetFilterDefault("ZBY->ZBY_OK == ' '")
+	//oBrowse:SetFilterDefault("ZBY->ZBY_OK == ' '")
 
 	oBrowse:Activate()
 
@@ -52,11 +51,7 @@ Static Function MenuDef()
     //Adicionando opções
     If (IIF(Type("l_Browse") == "L", l_Browse, .F.)) == .T.
 	    ADD OPTION aRotina TITLE 'Visualizar'  			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_VIEW   ACCESS 0 //OPERATION 1
-	    // ADD OPTION aRotina TITLE 'Incluir'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_INSERT ACCESS 0 //OPERATION 3
-	    // ADD OPTION aRotina TITLE 'Alterar'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_UPDATE ACCESS 0 //OPERATION 4
-	    // ADD OPTION aRotina TITLE 'Excluir'    			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_DELETE ACCESS 0 //OPERATION 5
-		ADD OPTION aRotina TITLE 'Classificar'     		ACTION 'U_CustomClas' OPERATION 6 ACCESS 0
-		ADD OPTION aRotina TITLE 'Documento de Entrada' ACTION 'U_ExecPadrao("MATA103")' OPERATION 7 ACCESS 0
+		ADD OPTION aRotina TITLE 'Conferir'     		ACTION 'U_fConfere(ZBY->ZBY_DOC,ZBY->ZBY_SERIE,ZBY->ZBY_FORNEC,ZBY->ZBY_LOJA,ZBY->ZBY_STATUS)' OPERATION 6 ACCESS 0
 		ADD OPTION aRotina TITLE 'Legenda'     			ACTION 'U_fLegZBY' OPERATION 11 ACCESS 0
 	EndIf
 
@@ -91,12 +86,11 @@ Static Function ModelDef()
     oModel:GetModel('ZBZDETAIL'):SetUniqueLine( { 'ZBZ_DOC', 'ZBZ_SERIE','ZBZ_FORNEC','ZBZ_LOJA'} )
 
     // DESCRIÇÃO DO MODELO
-    oModel:SetDescription("Natureza do Gasto")
+    oModel:SetDescription("Conferência de Entradas")
 
     // DESCRIÇÃO DOS SUBMODELOS
-    oModel:GetModel("ZBYMASTER"):SetDescription("Pré-Notas a Classificar")
-    oModel:GetModel("ZBZDETAIL"):SetDescription("Itens Analisados")
-    
+    oModel:GetModel("ZBYMASTER"):SetDescription("Entradas a Conferir")
+    oModel:GetModel("ZBZDETAIL"):SetDescription("Itens a Conferir")
     oModel:GetModel("ZBZDETAIL"):SetOptional(.T.)
 
 Return (oModel)
@@ -121,7 +115,7 @@ Static Function ViewDef()
     // RECEBE O MODELO DE DADOS
     Local oModel := ModelDef()
 
-     // INDICA O MODELO DA VIEW
+    // INDICA O MODELO DA VIEW
     oView:SetModel(oModel)
 
     // CRIA ESTRUTURA VISUAL DE CAMPOS
@@ -140,55 +134,11 @@ Static Function ViewDef()
 
     // DEFINE OS TÍTULOS DAS SUBVIEWS
     oView:EnableTitleView("VIEW_ZBY")
-    oView:EnableTitleView("VIEW_ZBZ", "ITENS ANALISADOS PRÉ-NOTA", 0)
+    oView:EnableTitleView("VIEW_ZBZ", "Itens a Conferir", 0)
 
     oView:SetViewProperty('VIEW_ZBY' , 'SETLAYOUT' , {FF_LAYOUT_HORZ_DESCR_TOP,10} ) 
 
 Return (oView)
-
-/*/{Protheus.doc} CustomClas
-	Abre a função para classificar a pré-nota
-	@type function
-	@version 12.1.33
-	@author Jonas Machado
-	@since 16/05/2022
-/*/
-User Function CustomClas()
-
-	Local aArea := FwGetArea()
-
-	// Verifica se o alias já estava aberto, se estiver, fecha
-	If Select("TmpRec") > 0
-		TmpRec->(DbSelectArea("TmpRec"))
-		TmpRec->(DbCloseArea())
-	EndIf
-
-	BEGINSQL ALIAS "TmpRec"
-		SELECT
-			R_E_C_N_O_ Recno
-		FROM
-			%TABLE:SF1%
-		WHERE
-			F1_FILIAL = %EXP:XFILIAL("SF1")%
-			AND F1_DOC = %EXP:ZBY->ZBY_DOC%
-			AND F1_SERIE = %EXP:ZBY->ZBY_SERIE%
-			AND F1_FORNECE = %EXP:ZBY->ZBY_FORNEC%
-			AND F1_LOJA = %EXP:ZBY->ZBY_LOJA%
-			AND F1_STATUS = ' '
-			AND %NOTDEL%
-	ENDSQL
-
-	aRotina := FwLoadMenuDef("MATA103")
-
-	DbSelectArea("SF1")
-	DbGoto(TmpRec->Recno)
-	A103NFiscal("SF1",SF1->(Recno()),4,.f.,.f.)
-
-	TmpRec->(DbCloseArea())
-
-	FwRestArea(aArea)
-
-Return (Nil)
 
 /*/{Protheus.doc} fLegZBY
 	Exibe um prompt com as legendas da rotina
@@ -201,14 +151,20 @@ User Function fLegZBY
 
 	Local aLegenda := {}
 
-	aAdd(aLegenda,{"BR_VERDE"   , "Analisado, Sem Restrição" })
-	aAdd(aLegenda,{"BR_VERMELHO"     , "Analisado, Prc Divergente" })
-	aAdd(aLegenda,{"BR_AMARELO"  , "Analisado, Qtde Divergente" })
-	aAdd(aLegenda,{"BR_LARANJA"  , "Analisado, Prc/Qtde Divergentes" })
-	// aAdd(aLegenda,{"BR_AZUL_CLARO", "Rejei. Prc Divergente" })
-	// aAdd(aLegenda,{"BR_PINK" 	 , "Rejei. Qtde Divergente" })
-	// aAdd(aLegenda,{"BR_PRETO" 	 , "Rejei. Prc/Qtde Divergentes" })
+	aAdd(aLegenda,{"BR_VERDE"    , "Não Conferido" })
+	// aAdd(aLegenda,{"BR_AZUL"  , "Não Conferido CQ" })
+	aAdd(aLegenda,{"BR_VERMELHO" , "Conferido" })
 
-	BrwLegenda("Pré-Notas a Classificar", "", aLegenda )
+	BrwLegenda("Documentos a Conferir", "", aLegenda )
 
 Return (Nil)
+
+User Function fConfere(_cDoc,_cSerie,_cForn,_cLoja,_cStatus)
+	If Empty(_cStatus)
+		U_KCOMF034(_cDoc,_cSerie,_cForn,_cLoja)
+	Else
+		Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento já foi conferido.",;
+        1, 0, NIL, NIL, NIL, NIL, NIL, {"Para efetuar a conferência, selecione um documento com status VERDE."})
+	EndIf
+
+Return Nil

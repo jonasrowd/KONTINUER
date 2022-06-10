@@ -10,6 +10,16 @@
 			"smartclientBin": "C:/TOTVS/Protheus/Protheus/bin/smartclient27/smartclient.exe",
 			"isMultiSession": true,
 			"enableTableSync": true
+		},
+		{
+			"type": "totvs_language_debug",
+			"request": "launch",
+			"name": "MINHA BASE",
+			"program": "${command:AskForProgramName}",
+			"cwb": "${workspaceFolder}",
+			"smartclientBin": "C:/TOTVS/Protheus/Protheus/bin/smartclient/smartclient.exe",
+			"isMultiSession": true,
+			"enableTableSync": true
 		}
 	],
 	"lastPrograms": [
@@ -18,6 +28,15 @@
 		},
 		{
 			"label": "APSDU"
+		},
+		{
+			"label": "SIGACOM"
+		},
+		{
+			"label": "SIGACFG"
+		},
+		{
+			"label": "SIGAADV"
 		}
 	],
 	"lastProgramExecuted": "SIGAEST"
