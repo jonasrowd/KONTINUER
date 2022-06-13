@@ -197,8 +197,6 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
 
         If (c_Status == "C" .AND. !EMPTY(c_Tes))
             U_KCOM034V(CNFISCAL, CSERIE, CA100FOR, CLOJA)
-        else
-            U_KCOM034V(CNFISCAL, CSERIE, CA100FOR, CLOJA) // Adicionei o Else Para Testar
         EndIf
 	ENDIF
 

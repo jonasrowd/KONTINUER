@@ -16,7 +16,7 @@
 User Function KCOM034V(_cDoc, _cSerie, _cForn, _cLoja)
 
 	Local c_Cabec   := ""
-	Local cDest	:= SuperGetMv("KR_MAILPRE",, "jonas.machado@samcorp.com.br")
+	Local cDest	:= SuperGetMv("KR_MAILPRE",, "follow-up@kontinuer.com")
 
     // Função para enviar e-mail
 	EnviarEmail(cDest, c_Cabec, cUsername, DToC(Date()) + " " + Time(), _cDoc, _cSerie, _cForn, _cLoja)
