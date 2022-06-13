@@ -57,7 +57,7 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	_cCorpo += '<table style="text-align: left; font-weight: bold; color: rgb(255, 255, 255); width: 1650px; height: 35px;" border="0" cellpadding="0" cellspacing="0">
 	_cCorpo += '  <tbody>
 	_cCorpo += '    <tr>
-	_cCorpo += '      <td style="text-align: center; background-color: rgb(51, 51, 51);"><big><big><big>ANÁLISE DE Documento</big></big></big></td>
+	_cCorpo += '      <td style="text-align: center; background-color: rgb(51, 51, 51);"><big><big><big>ANÁLISE DE DOCUMENTOS DE ENTRADA</big></big></big></td>
 	_cCorpo += '    </tr>
 	_cCorpo += '  </tbody>
 	_cCorpo += '</table>
