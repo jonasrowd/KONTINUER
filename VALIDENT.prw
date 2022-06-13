@@ -1,4 +1,5 @@
 #Include "TOTVS.ch"
+#Include "TopConn.ch"
 
 /*/{Protheus.doc} VALIDENT
     Função desenvolvida para realizar validações de existência de registros no banco de dados.

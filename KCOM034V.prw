@@ -1,7 +1,10 @@
 // Bibliotecas Necessárias
 #Include "TOTVS.ch"
-#include "AP5MAIL.ch"
+#Include "AP5MAIL.ch"
 #Include "TBICONN.ch"
+#Include "TopConn.ch"
+
+#Define ENTER CHR(13)+CHR(10) // Pula linha
 
 /*/{Protheus.doc} KCOM034V
     WF de aprovação ou rejeição do Documento
@@ -35,6 +38,8 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 
 	Local _cCorpo := "" // Corpo do e-mail
     Local nX := 0 
+	Local cPedido := ""
+	Local cSolic := ""
 
 	//Ordene a tabela
 	SA2->(DbSetOrder(1))
@@ -82,13 +87,13 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
             ZBY.*
         FROM 
             %TABLE:ZBY% ZBY
-        WHERE
+	    WHERE
             ZBY_FILIAL     = %XFILIAL:ZBY%
             AND ZBY_DOC    = %EXP:_cDoc%
             AND ZBY_SERIE  = %EXP:_cSerie%
             AND ZBY_FORNEC = %EXP:_cForn%
             AND ZBY_LOJA   = %EXP:_cLoja%
-            AND %NOTDEL%
+            AND ZBY.%NOTDEL%
     ENDSQL
     
 	_cCorpo += '<table style="text-align: left; width: 1650px; height: 44px;" border="0" cellpadding="0" cellspacing="3">
@@ -107,7 +112,7 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	_cCorpo += '<table style="text-align: left; width: 1650px; height: 38px;" border="0" cellpadding="0" cellspacing="0">
 	_cCorpo += '  <tbody>
 	_cCorpo += '    <tr>
-	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Avaliado por:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+cUserName+'</span></big></span></td>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Solicitante:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;%SOLIC%</span></big></span></td>
 	_cCorpo += '		</tr>
 	_cCorpo += '  </tbody>
 	_cCorpo += '</table>
@@ -115,7 +120,7 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	_cCorpo += '<table style="text-align: left; width: 1650px; height: 41px;" border="0" cellpadding="0" cellspacing="0"> 
 	_cCorpo += '	<tbody>
 	_cCorpo += '    <tr>
-	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Motivo:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+TMPZBY->ZBY_MOTIVO+'</span></big></span></td>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Motivo:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;%OBS%</span></big></span></td>
 	_cCorpo += '    </tr>
 	_cCorpo += '  </tbody>
 	_cCorpo += '</table>
@@ -143,6 +148,9 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 
 	//Acessa o inicio da query
 	QWF->(DbGoTop())
+
+	cPedido := If(!Empty(QWF->C7_NUM), QWF->C7_NUM, "")
+
 	//Loop nos itens
 	While (!QWF->(Eof()))
         nX++
@@ -164,12 +172,12 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 		_cCorpo := StrTran(_cCorpo, "%COD%"			, QWF->C7_PRODUTO)
 		_cCorpo := StrTran(_cCorpo, "%DESC%"		, U_StrxHtml(Alltrim(QWF->B1_DESC)))
 		_cCorpo := StrTran(_cCorpo, "%QTD%"			, Alltrim(Transform(QWF->D1_QUANT, "@E 999,999,999")))
-		_cCorpo := StrTran(_cCorpo, "%QTD2%"			, Alltrim(Transform(QWF->C7_QUANT, "@E 999,999,999")))
+		_cCorpo := StrTran(_cCorpo, "%QTD2%"		, Alltrim(Transform(QWF->C7_QUANT, "@E 999,999,999")))
 		_cCorpo := StrTran(_cCorpo, "%UN%"			, QWF->D1_UM)
 		_cCorpo := StrTran(_cCorpo, "%UN2%"			, QWF->C7_UM)
 		_cCorpo := StrTran(_cCorpo, "%VUNIT%"		, Alltrim(Transform(QWF->D1_VUNIT, "@E 999,999,999.99")))
 		_cCorpo := StrTran(_cCorpo, "%VUNIT2%"		, Alltrim(Transform(QWF->C7_PRECO, "@E 999,999,999.99")))
-		_cCorpo := StrTran(_cCorpo, "%OBS%"			, Alltrim(QWF->C7_OBS))
+		_cCorpo := StrTran(_cCorpo, "%OBS%"			, TMPZBY->ZBY_MOTIVO /*+ " " + Alltrim(QWF->C7_OBS)*/)
 
 		//Próximo registro
 		QWF->(DbSkip())
@@ -179,18 +187,41 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	//Fecha a query
 	QWF->(DbCloseArea())
 
+	KCOMF010E(_cDoc, _cSerie, _cForn, _cLoja, cPedido)
+
+	//Verifica se o solicitante foi incluído
+	If !(Alltrim(UsrFullName(QWG->SOLIC)) $ cSolic .AND. !Empty(QWG->SOLIC))
+
+		//Adiciona o separador
+		cSolic += If (!Empty(cSolic), ENTER, "")
+		cSolic += Alltrim(UsrFullName(QWG->SOLIC)) + " [" + Alltrim(UsrRetMail(QWG->SOLIC)) + "]"
+		
+		//Verifica se tem email
+		If (!Empty(UsrRetMail(QWG->SOLIC)))
+
+			//Separador
+			_cEmail += If (!Empty(_cEmail), ";", "")				
+
+			//Incrementa o email de cópia
+			_cEmail +=  Alltrim(UsrRetMail(QWG->SOLIC))
+		
+		EndIf
+
+	EndIf
+
+	//Substitui a tag
+	_cCorpo := StrTran(_cCorpo, "%SOLIC%", cSolic)
+
+	QWG->(DbCloseArea())
+
 	//Finaliza
 	_cCorpo += '  </tbody>
 	_cCorpo += '</table>
 	_cCorpo += '</body>
 	_cCorpo += '</html>    
 
-	IF ISBLIND()
-		// Envia os dados para a rotina que envia o email.
-		StartJob("U_TBSENDMAIL()", GetEnvServer(), .F., cEmpAnt, cFilAnt, _cEmail, _cCorpo, AllTrim(SM0->M0_NOMECOM) + " - CONFERÊNCIA DE RECEBIMENTO", .F.)
-	ELSE
-		U_TBSENDMAIL(cEmpAnt, cFilAnt, _cEmail, _cCorpo, AllTrim(SM0->M0_NOMECOM) + " - CONFERÊNCIA DE RECEBIMENTO", .T.)
-	ENDIF
+	// Envia os dados para a rotina que envia o email.
+	StartJob("U_TBSENDMAIL()", GetEnvServer(), .F., cEmpAnt, cFilAnt, _cEmail, _cCorpo, AllTrim(SM0->M0_NOMECOM) + " - CONFERÊNCIA DE RECEBIMENTO", .F.)
 
 Return (Nil)
 
@@ -295,19 +326,19 @@ User Function TBSENDMAIL(c_Emp, c_Filial, c_To, c_Body, c_Subj, l_ExibeTela, a_A
 	DEFAULT l_ExibeTela 	:= .F.	//Define se a tela de envio/erros devem ser exibidas ao final de cada processamento
 	DEFAULT a_Anexo			:= {}	//Anexos
 
-	IF ISBLIND()
-		RPCSetType(3) 
+	RPCSetType(3) 
 
-		PREPARE ENVIRONMENT EMPRESA c_Emp FILIAL c_Filial MODULO 'EST'
-	ELSE
+	PREPARE ENVIRONMENT EMPRESA c_Emp FILIAL c_Filial MODULO 'EST'
 
 	DBSELECTAREA("SX6")
 
 	c_Server   	:= GETMV("MV_RELSERV")	//Nome do Servidor de Envio de E-mail utilizado nos relatorios
 	c_Account  	:= GETMV("MV_RELACNT")	//Conta a ser utilizada no envio de E-Mail para os relatorios
 	c_Envia    	:= GETMV("MV_RELFROM")	//E-mail utilizado no campo FROM no envio de relatorios por e-mail
-	c_Password	:= GETMV("MV_RELPSW")	//Senha da Conta de E-Mail para envio de relatorios
-	c_Autentic	:= GETMV("MV_RELPSW")	//Senha para autenticacäo no servidor de e-mail
+	c_Password	:= ""
+	c_Autentic	:= ""
+	// c_Password	:= GETMV("MV_RELPSW")	//Senha da Conta de E-Mail para envio de relatorios
+	// c_Autentic	:= GETMV("MV_RELPSW")	//Senha para autenticacäo no servidor de e-mail
 	l_Autentic	:= GETMV("MV_RELAUTH")	//Servidor de EMAIL necessita de Autenticacao?
 	c_Erro		:= ""
 
@@ -368,6 +399,45 @@ User Function TBSENDMAIL(c_Emp, c_Filial, c_To, c_Body, c_Subj, l_ExibeTela, a_A
 	// Desconecta o servidor de SMTP
 	DISCONNECT SMTP SERVER Result lDisConectou
 
-	ENDIF
-
 Return (.T.)
+
+/**---------------------------------------------------------------------------------------------**/
+/** NOME DA FUNÇÃO	: KCOMF01E()			                                                 					**/
+/** DESCRIÇÃO	  		: Seleciona os dados do WF										               								**/
+/**---------------------------------------------------------------------------------------------**/
+/**															CRIAÇÃO /ALTERAÇÕES / MANUTENÇÕES                       	   		**/	
+/**---------------------------------------------------------------------------------------------**/
+/** Data       	| Desenvolvedor          | Solicitação         | Descrição                      **/
+/**---------------------------------------------------------------------------------------------**/
+/** 11/01/2022	| Velton Teixeira        |         -				   |															  **/
+/**---------------------------------------------------------------------------------------------**/
+/**	   					                  			PARAMETROS     	              		      								**/	
+/**---------------------------------------------------------------------------------------------**/
+/** 										Nenhum parametro esperado para essa rotina                     					**/
+/**---------------------------------------------------------------------------------------------**/ 
+
+Static Function KCOMF010E(_cDoc, _cSerie, _cForn, _cLoja, cPedido)
+
+	Local cQr := ""
+
+	cQr := " SELECT DISTINCT		SC7.C7_XSOLCIT		SOLIC
+	cQr += " FROM 			" + RetSqlName("SD1") + " SD1
+
+	cQr += " LEFT JOIN 	" + RetSqlName("SC7") + " SC7
+	cQr += " ON 				SC7.C7_FILIAL 	= '" + xFilial("SC7") + "'
+	cQr += " AND 				SC7.C7_NUM			= SD1.D1_PEDIDO
+	cQr += " AND 				SC7.C7_ITEM			= SD1.D1_ITEMPC
+	cQr += " AND 				SC7.D_E_L_E_T_	= ''
+
+	cQr += " WHERE 			SD1.D1_FILIAL  	= '" + xFilial("SD1") + "'
+	cQr += " AND 				SD1.D1_DOC    	= '" + _cDoc + "'
+	cQr += " AND 				SD1.D1_SERIE   	= '" + _cSerie + "'
+	cQr += " AND 				SD1.D1_FORNECE 	= '" + _cForn + "'
+	cQr += " AND 				SD1.D1_LOJA    	= '" + _cLoja + "'
+	cQr += " AND 				SD1.D1_PEDIDO  	= '" + cPedido + "'
+	cQr += " AND 				SD1.D_E_L_E_T_ 	= ''
+
+	//Define o alias de dados da query
+	TcQuery cQr New Alias "QWG"
+	
+Return Nil

@@ -42,7 +42,7 @@ User Function ETIQK009(_cDoc,_cSerie,_cForn,_cLoja,_cPed)
 	@ 013, 030 SAY oSayB PROMPT CdFor + " / " + cLoja 	SIZE 061, 018 OF oDlg PIXEL
 
 	@ 003, 080 SAY oSay3 PROMPT "Documento / Série" 	SIZE 060, 007 OF oDlg PIXEL
-	@ 013, 080 SAY oSayC PROMPT CdFor + " / " + cLoja 	SIZE 061, 018 OF oDlg PIXEL
+	@ 013, 080 SAY oSayC PROMPT _cDoc + " / " + _cSerie 	SIZE 061, 018 OF oDlg PIXEL
 
 	@ 003, 200 SAY oSay4 PROMPT "Fornecedor" 	SIZE 035, 007 OF oDlg PIXEL
 	@ 013, 200 SAY oSayD PROMPT cForn			SIZE 200, 010 OF oDlg PIXEL
@@ -224,24 +224,20 @@ Static Function FilC7(cPed,cProd,_cDoc,_cSerie,_cForn,_cLoja)
 	cForn		:=	QSC7->FORNECEDOR
 	CdFor		:=	QSC7->CODFOR
 	cLoja		:=	QSC7->LOJAFOR
- 
+
 	aPedidos:={}
 	
 	While QSC7->(!Eof())
 
 		If(Alltrim(cProd) =='')  
 		
-				If SubStr(cCombo1,1,1) == "1"
-
-						nQtd	:=  QSC7->QTDED1 // Adicionado por Jonas Machado - Samcorp
+				If SubStr(cCombo1,1,1) == "2"
 				
-				ElseIf SubStr(cCombo1,1,1) == "2"
-				
-						nQtd	:=	QSC7->QTDE	
+						nQtd	:=	QSC7->QTDED1	
 						
 				ElseIf SubStr(cCombo1,1,1) == "3"
 				
-						nQtd	:=	QSC7->C7_XQTD2	
+						nQtd	:=	QSC7->QTDE
 				
 				EndIf  
 		
