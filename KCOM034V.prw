@@ -141,7 +141,7 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">UN.PED</td>
 	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">V.UNITNF</td>
 	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">V.UNIPED</td>
-	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">OBSERVA&Ccedil;&Atilde;O</td>
+	_cCorpo += '      <td style="font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: center; height: 31px;">OBSERVAÇÃO</td>
 	_cCorpo += '    </tr>
 
     KCOMF034C(_cDoc, _cSerie, _cForn, _cLoja)
@@ -177,7 +177,7 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 		_cCorpo := StrTran(_cCorpo, "%UN2%"			, QWF->C7_UM)
 		_cCorpo := StrTran(_cCorpo, "%VUNIT%"		, Alltrim(Transform(QWF->D1_VUNIT, "@E 999,999,999.99")))
 		_cCorpo := StrTran(_cCorpo, "%VUNIT2%"		, Alltrim(Transform(QWF->C7_PRECO, "@E 999,999,999.99")))
-		_cCorpo := StrTran(_cCorpo, "%OBS%"			, TMPZBY->ZBY_MOTIVO /*+ " " + Alltrim(QWF->C7_OBS)*/)
+		_cCorpo := StrTran(_cCorpo, "%OBS%"			, Alltrim(QWF->C7_OBS))
 
 		//Próximo registro
 		QWF->(DbSkip())
