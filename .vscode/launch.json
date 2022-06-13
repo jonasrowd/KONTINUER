@@ -9,7 +9,8 @@
 			"cwb": "${workspaceFolder}",
 			"smartclientBin": "C:/TOTVS/Protheus/Protheus/bin/smartclient27/smartclient.exe",
 			"isMultiSession": true,
-			"enableTableSync": true
+			"enableTableSync": true,
+			"enableMultiThread": true
 		},
 		{
 			"type": "totvs_language_debug",
@@ -19,7 +20,8 @@
 			"cwb": "${workspaceFolder}",
 			"smartclientBin": "C:/TOTVS/Protheus/Protheus/bin/smartclient/smartclient.exe",
 			"isMultiSession": true,
-			"enableTableSync": true
+			"enableTableSync": true,
+			"enableMultiThread": true
 		}
 	],
 	"lastPrograms": [

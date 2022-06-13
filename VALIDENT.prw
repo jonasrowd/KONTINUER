@@ -12,8 +12,6 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
 
     // Inicialização de variáveis
 	Local aArea := FwGetArea()
-	Local cAlias 	:= GetNextAlias()
-	Local _cAlias := GetNextAlias()
     Local c_Tes := ""
     Local c_Status := ""
 
@@ -22,7 +20,13 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
     DEFAULT CA100FOR    := _cForn
     DEFAULT CLOJA       := _cLoja   
 
-	BEGINSQL ALIAS cALIAS
+    // Verifica se o alias já estava aberto, se estiver, fecha
+    If Select("TMPZBY") > 0
+        TMPZBY->(DbSelectArea("TMPZBY"))
+        TMPZBY->(DbCloseArea())
+    EndIf
+
+	BEGINSQL ALIAS "TMPZBY"
 	SELECT 
 		ZBY_FILIAL
 		, ZBY_DOC   
@@ -41,11 +45,17 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
 		AND %NOTDEL%
 	ENDSQL
 
-    c_Status := ZBY_STATUS
+    c_Status := TMPZBY->ZBY_STATUS
 
 	IF EOF()
+
+        // Verifica se o alias já estava aberto, se estiver, fecha
+        If Select("TMPDOC") > 0
+            TMPDOC->(DbSelectArea("TMPDOC"))
+            TMPDOC->(DbCloseArea())
+        EndIf
         // Busca pelos itens da pré-nota
-        BEGINSQL ALIAS _cAlias
+        BEGINSQL ALIAS "TMPDOC"
             SELECT
                 SF1.F1_DOC,
                 SF1.F1_SERIE,
@@ -120,8 +130,8 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
                 AND SD1.D1_FORNECE = %EXP:CA100FOR%
                 AND SD1.D1_LOJA = %EXP:CLOJA%
                 AND SD1.%NOTDEL%
-                AND SD1.D1_TIPO == 'N'
-                AND SD1.D1_PEDIDO != ""
+                AND SD1.D1_TIPO = 'N'
+                AND SD1.D1_PEDIDO != ''
         ENDSQL
 
         BEGIN TRANSACTION
@@ -133,8 +143,8 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
                 ZBY->ZBY_SERIE   := CSERIE
                 ZBY->ZBY_FORNEC  := CA100FOR
                 ZBY->ZBY_LOJA    := CLOJA
-                ZBY->ZBY_EMISSA  := CtOD(_cAlias->F1_EMISSAO)
-                ZBY->ZBY_NOME    := _cAlias->A2_NOME
+                ZBY->ZBY_EMISSA  := CtOD(TMPDOC->F1_EMISSAO)
+                ZBY->ZBY_NOME    := TMPDOC->A2_NOME
                 ZBY->ZBY_DTHORA  := DToC(Date()) + " " + Time()
                 ZBY->ZBY_USUA    := cUsername
                 ZBY->ZBY_STATUS  := ""
@@ -152,20 +162,20 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
                         ZBZ->ZBZ_SERIE  := CSERIE
                         ZBZ->ZBZ_FORNEC := CA100FOR
                         ZBZ->ZBZ_LOJA   := CLOJA
-                        ZBZ->ZBZ_NOME   := _cAlias->A2_NOME
-                        ZBZ->ZBZ_EMISSA := CtOD(_cAlias->F1_EMISSAO)
-                        ZBZ->ZBZ_PRODUT := _cAlias->D1_PRODUTO
-                        ZBZ->ZBZ_DOCQTD := _cAlias->D1_QUANT
-                        ZBZ->ZBZ_DOCUNM := _cAlias->D1_UM
-                        ZBZ->ZBZ_DOCVLR := _cAlias->D1_VUNIT
-                        ZBZ->ZBZ_DOCDIF := _cAlias->TMP_DIFPRC
-                        ZBZ->ZBZ_PEDNUM := _cAlias->D1_PEDIDO
-                        ZBZ->ZBZ_PEDITM := _cAlias->D1_ITEMPC
-                        ZBZ->ZBZ_PEDQTD := _cAlias->TMP_SLDENTR
-                        ZBZ->ZBZ_PEDUNM := _cAlias->C7_UM
-                        ZBZ->ZBZ_PEDVLR := _cAlias->C7_PRECO
-                        ZBZ->ZBZ_PEDFAL := _cAlias->SALDO
-                        ZBZ->ZBZ_PEDDIF := _cAlias->TMP_DIFPRC
+                        ZBZ->ZBZ_NOME   := TMPDOC->A2_NOME
+                        ZBZ->ZBZ_EMISSA := STOD(TMPDOC->F1_EMISSAO)
+                        ZBZ->ZBZ_PRODUT := TMPDOC->D1_COD
+                        ZBZ->ZBZ_DOCQTD := TMPDOC->D1_QUANT
+                        ZBZ->ZBZ_DOCUNM := TMPDOC->D1_UM
+                        ZBZ->ZBZ_DOCVLR := TMPDOC->D1_VUNIT
+                        ZBZ->ZBZ_DOCDIF := TMPDOC->TMP_DIFPRC
+                        ZBZ->ZBZ_PEDNUM := TMPDOC->D1_PEDIDO
+                        ZBZ->ZBZ_PEDITM := TMPDOC->D1_ITEMPC
+                        ZBZ->ZBZ_PEDQTD := TMPDOC->TMP_SLDENTR
+                        ZBZ->ZBZ_PEDUNM := TMPDOC->C7_UM
+                        ZBZ->ZBZ_PEDVLR := TMPDOC->C7_PRECO
+                        ZBZ->ZBZ_PEDFAL := TMPDOC->SALDO
+                        ZBZ->ZBZ_PEDDIF := TMPDOC->TMP_DIFPRC
                         ZBZ->ZBZ_DTHORA := DToC(Date()) + " " + Time()
                         ZBZ->ZBZ_USUA   := ""
                     MsUnlock()
@@ -174,11 +184,16 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
 
 		END TRANSACTION
 
-        _cAlias->(DbCloseArea())
+        TMPDOC->(DbCloseArea())
 
     ELSE
+        // Verifica se o alias já estava aberto, se estiver, fecha
+        If Select("TMPDOC") > 0
+            TMPDOC->(DbSelectArea("TMPDOC"))
+            TMPDOC->(DbCloseArea())
+        EndIf
         // Busca pelos itens da pré-nota
-        BEGINSQL ALIAS _cAlias
+        BEGINSQL ALIAS "TMPDOC"
             SELECT SD1.*
             FROM
                 %TABLE:SD1% SD1
@@ -190,10 +205,10 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
                 AND SD1.D1_LOJA = %EXP:CLOJA%
                 AND SD1.%NOTDEL%
                 AND SD1.D1_TIPO = 'N'
-                AND SD1.D1_PEDIDO != ""
+                AND SD1.D1_PEDIDO != ''
         ENDSQL
 
-        c_Tes := D1_TES
+        c_Tes := TMPDOC->D1_TES
 
         If (c_Status == "C" .AND. !EMPTY(c_Tes))
             U_KCOM034V(CNFISCAL, CSERIE, CA100FOR, CLOJA)
