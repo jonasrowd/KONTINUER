@@ -509,7 +509,6 @@ Return (Nil)
 Static Function KCOMF034Y(cMotivo)
 
     Local aArea     := FwGetArea()    // Salva área anteriormente posicionada
-    Local nx        := 0              // Variável contador
     Default cMotivo := "Conferido"
     
     // Verifica se não há nenhuma inconsistência antes de persistir os dados no banco
@@ -521,19 +520,9 @@ Static Function KCOMF034Y(cMotivo)
             DbSeek(xFilial("ZBY")+aGets[1][2]+aGets[2][2]+aGets[3][2]+aGets[4][2])
             // Persiste os dados na tabela de cabeçalho das Documentos avaliadas
             RecLock("ZBY",.F.)
-                ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
-                ZBY->ZBY_DOC     := aGets[1][2]
-                ZBY->ZBY_SERIE   := aGets[2][2]
-                ZBY->ZBY_FORNEC  := aGets[3][2]
-                ZBY->ZBY_LOJA    := aGets[4][2]
-                ZBY->ZBY_EMISSA  := cToD(aDados[2]:cTitle)
-                ZBY->ZBY_NOME    := aDados[3]:cTitle
-                ZBY->ZBY_DTHORA  := DToC(Date()) + " " + Time()
                 ZBY->ZBY_USUA    := cUsername
                 ZBY->ZBY_STATUS  := "C"
-                ZBY->ZBY_SITUAC  := "L"
                 ZBY->ZBY_MOTIVO  := cMotivo
-                ZBY->ZBY_OK     := " "
             MsUnlock()
 
             // Fecha a área do cabeçalho das Documentos avaliadas
@@ -547,25 +536,6 @@ Static Function KCOMF034Y(cMotivo)
                 WHILE !EOF()
                     // Grava os itens do Documento
                     RecLock("ZBZ",.F.)
-                        ZBZ->ZBZ_FILIAL := FWXFILIAL("ZBZ")
-                        ZBZ->ZBZ_DOC    := aGets[1][2]
-                        ZBZ->ZBZ_SERIE  := aGets[2][2]
-                        ZBZ->ZBZ_FORNEC := aGets[3][2]
-                        ZBZ->ZBZ_LOJA   := aGets[4][2]
-                        ZBZ->ZBZ_NOME   := aDados[3]:cTitle
-                        ZBZ->ZBZ_EMISSA := CToD(aDados[2]:cTitle)
-                        ZBZ->ZBZ_PRODUT := aL1[nX][2]
-                        ZBZ->ZBZ_DOCQTD := aL1[nX][5]
-                        ZBZ->ZBZ_DOCUNM := aL1[nX][4]
-                        ZBZ->ZBZ_DOCVLR := aL1[nX][6]
-                        ZBZ->ZBZ_DOCDIF := aL1[nX][7]
-                        ZBZ->ZBZ_PEDNUM := aL1[nX][8]
-                        ZBZ->ZBZ_PEDITM := aL1[nX][9]
-                        ZBZ->ZBZ_PEDQTD := aL2[nX][6]
-                        ZBZ->ZBZ_PEDUNM := aL2[nX][5]
-                        ZBZ->ZBZ_PEDVLR := aL2[nX][7]
-                        ZBZ->ZBZ_PEDFAL := aL2[nX][8]
-                        ZBZ->ZBZ_PEDDIF := aL1[nX][10]
                         ZBZ->ZBZ_DTHORA := DToC(Date()) + " " + Time()
                         ZBZ->ZBZ_USUA   := cUsername
                     MsUnlock()

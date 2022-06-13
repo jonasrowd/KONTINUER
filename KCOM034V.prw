@@ -16,7 +16,7 @@
 User Function KCOM034V(_cDoc, _cSerie, _cForn, _cLoja)
 
 	Local c_Cabec   := ""
-	Local cDest	:= SuperGetMv("KR_MAILPRE",, "follow-up@kontinuer.com")
+	Local cDest	:= SuperGetMv("KR_MAILPRE",, "jonas.machado@samcorp.com.br")
 
     // Função para enviar e-mail
 	EnviarEmail(cDest, c_Cabec, cUsername, DToC(Date()) + " " + Time(), _cDoc, _cSerie, _cForn, _cLoja)
@@ -120,7 +120,7 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	_cCorpo += '<table style="text-align: left; width: 1650px; height: 41px;" border="0" cellpadding="0" cellspacing="0"> 
 	_cCorpo += '	<tbody>
 	_cCorpo += '    <tr>
-	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Motivo:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;%OBS%</span></big></span></td>
+	_cCorpo += '      <td style="background-color: rgb(238, 238, 238);"><span style="color: rgb(204, 0, 0); font-weight: bold;">&nbsp;Motivo:<br><big><span style="color: rgb(0, 0, 0);">&nbsp;'+TMPZBY->ZBY_MOTIVO+'</span></big></span></td>
 	_cCorpo += '    </tr>
 	_cCorpo += '  </tbody>
 	_cCorpo += '</table>
@@ -189,12 +189,15 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 
 	KCOMF010E(_cDoc, _cSerie, _cForn, _cLoja, cPedido)
 
+	//Acessa o inicio da query
+	QWG->(DbGoTop())
+
 	//Verifica se o solicitante foi incluído
 	If !(Alltrim(UsrFullName(QWG->SOLIC)) $ cSolic .AND. !Empty(QWG->SOLIC))
 
 		//Adiciona o separador
 		cSolic += If (!Empty(cSolic), ENTER, "")
-		cSolic += Alltrim(UsrFullName(QWG->SOLIC)) + " [" + Alltrim(UsrRetMail(QWG->SOLIC)) + "]"
+		cSolic += AllTrim(QWG->SOLIC) + " " + Alltrim(UsrFullName(QWG->SOLIC)) + " [E-Mail: " + Alltrim(UsrRetMail(QWG->SOLIC)) + " ]"
 		
 		//Verifica se tem email
 		If (!Empty(UsrRetMail(QWG->SOLIC)))
@@ -219,6 +222,8 @@ Static Function EnviarEmail(_cEmail, _cCabec, _cNome, _cPeriodo, _cDoc, _cSerie,
 	_cCorpo += '</table>
 	_cCorpo += '</body>
 	_cCorpo += '</html>    
+
+	TMPZBY->(DbCloseArea())
 
 	// Envia os dados para a rotina que envia o email.
 	StartJob("U_TBSENDMAIL()", GetEnvServer(), .F., cEmpAnt, cFilAnt, _cEmail, _cCorpo, AllTrim(SM0->M0_NOMECOM) + " - CONFERÊNCIA DE RECEBIMENTO", .F.)
@@ -335,8 +340,8 @@ User Function TBSENDMAIL(c_Emp, c_Filial, c_To, c_Body, c_Subj, l_ExibeTela, a_A
 	c_Server   	:= GETMV("MV_RELSERV")	//Nome do Servidor de Envio de E-mail utilizado nos relatorios
 	c_Account  	:= GETMV("MV_RELACNT")	//Conta a ser utilizada no envio de E-Mail para os relatorios
 	c_Envia    	:= GETMV("MV_RELFROM")	//E-mail utilizado no campo FROM no envio de relatorios por e-mail
-	c_Password	:= ""
-	c_Autentic	:= ""
+	c_Password	:= "pnwlooeuteucsyzq"
+	c_Autentic	:= "pnwlooeuteucsyzq"
 	// c_Password	:= GETMV("MV_RELPSW")	//Senha da Conta de E-Mail para envio de relatorios
 	// c_Autentic	:= GETMV("MV_RELPSW")	//Senha para autenticacäo no servidor de e-mail
 	l_Autentic	:= GETMV("MV_RELAUTH")	//Servidor de EMAIL necessita de Autenticacao?
@@ -421,21 +426,11 @@ Static Function KCOMF010E(_cDoc, _cSerie, _cForn, _cLoja, cPedido)
 	Local cQr := ""
 
 	cQr := " SELECT DISTINCT		SC7.C7_XSOLCIT		SOLIC
-	cQr += " FROM 			" + RetSqlName("SD1") + " SD1
+	cQr += " FROM 			" + RetSqlName("SC7") + " SC7
 
-	cQr += " LEFT JOIN 	" + RetSqlName("SC7") + " SC7
-	cQr += " ON 				SC7.C7_FILIAL 	= '" + xFilial("SC7") + "'
-	cQr += " AND 				SC7.C7_NUM			= SD1.D1_PEDIDO
-	cQr += " AND 				SC7.C7_ITEM			= SD1.D1_ITEMPC
-	cQr += " AND 				SC7.D_E_L_E_T_	= ''
-
-	cQr += " WHERE 			SD1.D1_FILIAL  	= '" + xFilial("SD1") + "'
-	cQr += " AND 				SD1.D1_DOC    	= '" + _cDoc + "'
-	cQr += " AND 				SD1.D1_SERIE   	= '" + _cSerie + "'
-	cQr += " AND 				SD1.D1_FORNECE 	= '" + _cForn + "'
-	cQr += " AND 				SD1.D1_LOJA    	= '" + _cLoja + "'
-	cQr += " AND 				SD1.D1_PEDIDO  	= '" + cPedido + "'
-	cQr += " AND 				SD1.D_E_L_E_T_ 	= ''
+	cQr += " WHERE 			SC7.C7_FILIAL  	= '" + xFilial("SC7") + "'
+	cQr += " AND 				SC7.C7_NUM    	= '" + cPedido + "'
+	cQr += " AND 				SC7.D_E_L_E_T_ 	= ''
 
 	//Define o alias de dados da query
 	TcQuery cQr New Alias "QWG"

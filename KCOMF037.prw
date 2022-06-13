@@ -27,7 +27,7 @@ User Function KCOMF037()
 
 	// Definição da legenda
 	oBrowse:AddLegend( "ZBY_STATUS == ' ' .AND. ZBY_SITUAC == 'L' ", "GREEN"   , "Não Conferido" )
-	// oBrowse:AddLegend( "ZBY_STATUS == ' ' .AND. ZBY_SITUAC == 'Q' ", "BLUE"    , "Não Conferido CQ" )
+	oBrowse:AddLegend( "ZBY_STATUS == 'I' .AND. ZBY_SITUAC == 'I' ", "BLUE"    , "Inutilizada" )
 	oBrowse:AddLegend( "ZBY_STATUS != ' ' ", "RED"   , "Conferido" )
 
 	//oBrowse:SetFilterDefault("ZBY->ZBY_OK == ' '")
@@ -52,6 +52,7 @@ Static Function MenuDef()
     If (IIF(Type("l_Browse") == "L", l_Browse, .F.)) == .T.
 	    ADD OPTION aRotina TITLE 'Visualizar'  			ACTION 'VIEWDEF.KCOMF037' OPERATION MODEL_OPERATION_VIEW   ACCESS 0 //OPERATION 1
 		ADD OPTION aRotina TITLE 'Conferir'     		ACTION 'U_fConfere(ZBY->ZBY_DOC,ZBY->ZBY_SERIE,ZBY->ZBY_FORNEC,ZBY->ZBY_LOJA,ZBY->ZBY_STATUS)' OPERATION 6 ACCESS 0
+		ADD OPTION aRotina TITLE 'Inutilizar'     		ACTION 'U_fInutiliza(ZBY->ZBY_DOC,ZBY->ZBY_SERIE,ZBY->ZBY_FORNEC,ZBY->ZBY_LOJA,ZBY->ZBY_STATUS)' OPERATION 7 ACCESS 0
 		ADD OPTION aRotina TITLE 'Legenda'     			ACTION 'U_fLegZBY' OPERATION 11 ACCESS 0
 	EndIf
 
@@ -152,7 +153,7 @@ User Function fLegZBY
 	Local aLegenda := {}
 
 	aAdd(aLegenda,{"BR_VERDE"    , "Não Conferido" })
-	// aAdd(aLegenda,{"BR_AZUL"  , "Não Conferido CQ" })
+	aAdd(aLegenda,{"BR_AZUL"  , "Inutilizado" })
 	aAdd(aLegenda,{"BR_VERMELHO" , "Conferido" })
 
 	BrwLegenda("Documentos a Conferir", "", aLegenda )
@@ -165,6 +166,29 @@ User Function fConfere(_cDoc,_cSerie,_cForn,_cLoja,_cStatus)
 	Else
 		Help(NIL, NIL, SM0->M0_NOMECOM, NIL, "Este documento já foi conferido.",;
         1, 0, NIL, NIL, NIL, NIL, NIL, {"Para efetuar a conferência, selecione um documento com status VERDE."})
+	EndIf
+
+Return Nil
+
+User Function fInutiliza(_cDoc,_cSerie,_cForn,_cLoja,_cStatus)
+
+	DbSelectArea("ZBY")
+	DbSetOrder(1)
+	DbSeek(xFilial("ZBY")+_cDoc+_cSerie+_cForn+_cLoja)
+	If ZBY->ZBY_STATUS == "I"
+		If MsgYesNo("Deseja RESTAURAR este documento na rotina?", "Restaurar o documento")
+			RecLock("ZBY",.F.)
+				ZBY->ZBY_STATUS := " "
+				ZBY->ZBY_SITUAC := "L"
+			MsUnlock()
+		EndIf
+	Else
+		If (MsgYesNo("Deseja Inutilizar este documento na rotina?", "Inutilizar o documento") .And. ZBY->ZBY_STATUS <> "C")
+			RecLock("ZBY",.F.)
+				ZBY->ZBY_STATUS := "I"
+				ZBY->ZBY_SITUAC := "I"
+			MsUnlock()
+		EndIf
 	EndIf
 
 Return Nil
