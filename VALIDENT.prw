@@ -143,22 +143,25 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
 			End
 
             TMPDOC->(dBgOtOP())
-            // Persiste os dados na tabela de cabeçalho de documentos a serem avaliados
-            RecLock("ZBY",.T.)
-                ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
-                ZBY->ZBY_DOC     := CNFISCAL
-                ZBY->ZBY_SERIE   := CSERIE
-                ZBY->ZBY_FORNEC  := CA100FOR
-                ZBY->ZBY_LOJA    := CLOJA
-                ZBY->ZBY_EMISSA  := STOD(TMPDOC->F1_EMISSAO)
-                ZBY->ZBY_NOME    := Posicione('SA2',1,xFilial('SA2')+CA100FOR+CLOJA,'A2_NOME')
-                ZBY->ZBY_DTHORA  := DToC(Date()) + " " + Time()
-                ZBY->ZBY_USUA    := ""
-                ZBY->ZBY_STATUS  := ""
-                ZBY->ZBY_SITUAC  := "L"
-                ZBY->ZBY_MOTIVO  := ""
-                ZBY->ZBY_OK      := ""
-            MsUnlock()
+            
+            IF (TMPDOC->D1_TIPO == 'N' .AND. TMPDOC->D1_PEDIDO != '')
+                // Persiste os dados na tabela de cabeçalho de documentos a serem avaliados
+                RecLock("ZBY",.T.)
+                    ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
+                    ZBY->ZBY_DOC     := CNFISCAL
+                    ZBY->ZBY_SERIE   := CSERIE
+                    ZBY->ZBY_FORNEC  := CA100FOR
+                    ZBY->ZBY_LOJA    := CLOJA
+                    ZBY->ZBY_EMISSA  := STOD(TMPDOC->F1_EMISSAO)
+                    ZBY->ZBY_NOME    := Posicione('SA2',1,xFilial('SA2')+CA100FOR+CLOJA,'A2_NOME')
+                    ZBY->ZBY_DTHORA  := DToC(Date()) + " " + Time()
+                    ZBY->ZBY_USUA    := ""
+                    ZBY->ZBY_STATUS  := ""
+                    ZBY->ZBY_SITUAC  := "L"
+                    ZBY->ZBY_MOTIVO  := ""
+                    ZBY->ZBY_OK      := ""
+                MsUnlock()
+            ENDIF
 
 		END TRANSACTION
 
