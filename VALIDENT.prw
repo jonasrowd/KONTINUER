@@ -144,7 +144,7 @@ User Function VALIDENT(_cDoc, _cSerie, _cForn, _cLoja)
 
             TMPDOC->(dBgOtOP())
             
-            IF (TMPDOC->D1_TIPO == 'N' .AND. TMPDOC->D1_PEDIDO != '')
+            IF TMPDOC->(!EOF())
                 // Persiste os dados na tabela de cabeçalho de documentos a serem avaliados
                 RecLock("ZBY",.T.)
                     ZBY->ZBY_FILIAL  := FWXFILIAL("ZBY")
